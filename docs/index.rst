@@ -9,6 +9,7 @@
 .. |Tornado Web Server| image:: tornado.png
     :alt: Tornado Web Server
 
+你好，我正在翻译tornado文档。
 `Tornado <http://www.tornadoweb.org>`_ is a Python web framework and
 asynchronous networking library, originally developed at `FriendFeed
 <http://friendfeed.com>`_.  By using non-blocking network I/O, Tornado
