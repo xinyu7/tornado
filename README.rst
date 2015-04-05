@@ -9,6 +9,11 @@ can scale to tens of thousands of open connections, making it ideal for
 `WebSockets <http://en.wikipedia.org/wiki/WebSocket>`_, and other
 applications that require a long-lived connection to each user.
 
+`Tornado <http://www.tornadoweb.org>`_ 是一个最初由`FriendFeed<http://friendfeed.com>`_团队开发的Python的web框架以及异步的网络库。  By using non-blocking network I/O, Tornado
+can scale to tens of thousands of open connections, making it ideal for
+`long polling <http://en.wikipedia.org/wiki/Push_technology#Long_polling>`_,
+`WebSockets <http://en.wikipedia.org/wiki/WebSocket>`_, and other
+applications that require a long-lived connection to each user.
 
 Upgrade notes
 -------------
