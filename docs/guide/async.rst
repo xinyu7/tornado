@@ -1,19 +1,13 @@
-Asynchronous and non-Blocking I/O
+异步非阻塞I/O
 ---------------------------------
 
-Real-time web features require a long-lived mostly-idle connection per
-user.  In a traditional synchronous web server, this implies devoting
-one thread to each user, which can be very expensive.
+实时的web功能需要为每一个用户保持一个长期存活的，大部分时候空闲的链接。在一个传统的同步web服务器端，这暗示着要为每一个用户奉献出一个线程，这将会带来很大的代价。
 
-To minimize the cost of concurrent connections, Tornado uses a
-single-threaded event loop.  This means that all application code
-should aim to be asynchronous and non-blocking because only one
-operation can be active at a time.
+为了最大限度地减少并发连接的成本，Tornado使用单线程事件循环。这意味着，所有的应用程序代码应力求异步非阻塞的，因为在一个时间只有一个操作可是活动的。
 
-The terms asynchronous and non-blocking are closely related and are
-often used interchangeably, but they are not quite the same thing.
+异步非阻塞的定义密切相关，而且经常互换使用，但它们并不完全是一回事。
 
-Blocking
+阻塞
 ~~~~~~~~
 
 A function **blocks** when it waits for something to happen before
@@ -25,6 +19,10 @@ as other kinds of blocking, consider password hashing functions like
 `bcrypt <http://bcrypt.sourceforge.net/>`_, which by design use
 hundreds of milliseconds of CPU time, far more than a typical network
 or disk access).
+
+一个函数在return之前，等待其他事情发生（其他代码执行）的过程，称其为 **阻塞** 状态。一个函数可能会因为很多原因而阻塞：网络I/O,磁盘I/O,以及锁等等。事实上，*每一个* 函数运行中并使用CPU的时候至少都会发生一点点阻塞现象（为了说明相对于其他种类的阻塞，为什么需要将CPU的阻塞进行认真对待，这里举一个
+极端的例子，如 `bcrypt <http://bcrypt.sourceforge.net/>`_ 这样的密码hash函数会使用
+几百毫秒的CPU时间，远远超过典型的网络或硬盘访问时延。
 
 A function can be blocking in some respects and non-blocking in
 others.  For example, `tornado.httpclient` in the default
