@@ -1,4 +1,4 @@
-User's guide
+用户入门指导
 ============
 
 .. toctree::
