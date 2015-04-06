@@ -88,14 +88,14 @@ Tronado的文档拥有 `PDF 和 Epub 两种模式可供下载 <https://readthedo
 .. toctree::
    :titlesonly:
 
-   入门指导（guide）
-   web框架（webframework）
+   guide
+   webframework
    http
-   网络（networking）
-   协程（coroutine）
-   集成 （integration）
-   通用（utilities）
-   FAQ
+   networking
+   coroutine
+   integration
+   utilities
+   faq
    releases
 
 * :ref:`genindex`
