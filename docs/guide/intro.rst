@@ -13,9 +13,6 @@ Tornado 大致可以分为四个主要部件:
   `.AsyncHTTPClient`).
 * HTTP的客户端和服务器端的实现（`.HTTPServer` 和 `.AsyncHTTPClient` ）
 * 一个异步的网络库（`.IOLoop` 和 `.IOStream`），作为HTTP组件的一部分，也可以用于实现其他的协议。
-* A coroutine library (`tornado.gen`) which allows asynchronous
-  code to be written in a more straightforward way than chaining
-  callbacks.
 * 一个协程库 (`tornado.gen`)，相比回调方式，该类库可以用更简单的方式进行异步的代码开发。
 
 
