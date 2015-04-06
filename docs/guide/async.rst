@@ -10,9 +10,7 @@
 阻塞
 ~~~~~~~~
 
-一个函数在return之前，等待其他事情发生（其他代码执行）的过程，称其为 **阻塞** 状态。一个函数可能会因为很多原因而阻塞：网络I/O,磁盘I/O,以及锁等等。事实上，*每一个* 函数运行中并使用CPU的时候至少都会发生一点点阻塞现象（为了说明相对于其他种类的阻塞，为什么需要将CPU的阻塞进行认真对待，这里举一个
-极端的例子，如 `bcrypt <http://bcrypt.sourceforge.net/>`_ 这样的密码hash函数会使用
-几百毫秒的CPU时间，远远超过典型的网络或硬盘访问时延。
+一个函数在return之前，等待其他事情发生（其他代码执行）的过程，称其为 **阻塞** 状态。一个函数可能会因为很多原因而阻塞：网络I/O, 磁盘I/O, 以及锁等等。事实上，*每一个* 函数运行中并使用CPU的时候至少都会发生一点点阻塞现象（为了说明相对于其他种类的阻塞，为什么需要将CPU的阻塞进行认真对待，这里举一个极端的例子，如 `bcrypt <http://bcrypt.sourceforge.net/>`_ 这样的密码hash函数,会使用几百毫秒的CPU时间，远远超过典型的网络或硬盘访问时延。
 
 A function can be blocking in some respects and non-blocking in
 others.  For example, `tornado.httpclient` in the default
