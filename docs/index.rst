@@ -9,30 +9,23 @@
 .. |Tornado Web Server| image:: tornado.png
     :alt: Tornado Web Server
 
-你好，我正在翻译tornado文档。
-`Tornado <http://www.tornadoweb.org>`_ is a Python web framework and
-asynchronous networking library, originally developed at `FriendFeed
-<http://friendfeed.com>`_.  By using non-blocking network I/O, Tornado
-can scale to tens of thousands of open connections, making it ideal for
-`long polling <http://en.wikipedia.org/wiki/Push_technology#Long_polling>`_,
-`WebSockets <http://en.wikipedia.org/wiki/WebSocket>`_, and other
-applications that require a long-lived connection to each user.
+`Tornado <http://www.tornadoweb.org>`_ 是一个最初由 `FriendFeed
+<http://friendfeed.com>`_ 团队开发的Python web框架及异步网络类库。依托于非阻塞的网络I/O，Tronado可以支持数以万记的活跃链接，十分适用于如 `long polling <http://en.wikipedia.org/wiki/Push_technology#Long_polling>`_,
+`WebSockets <http://en.wikipedia.org/wiki/WebSocket>`_, 以及其他需要每个用户都保持一个活跃长连接的应用。
 
-Quick links
+快速链接地址：
 -----------
 
-* |Download current version|: :current_tarball:`z` (:doc:`release notes <releases>`)
-* `Source (github) <https://github.com/tornadoweb/tornado>`_
-* Mailing lists: `discussion <http://groups.google.com/group/python-tornado>`_ and `announcements <http://groups.google.com/group/python-tornado-announce>`_
+* |下载当前版本|: :current_tarball:`z` (:doc:`release notes <releases>`)
+* `源代码地址 (github) <https://github.com/tornadoweb/tornado>`_
+* 邮件列表: `讨论组 <http://groups.google.com/group/python-tornado>`_ and `通知 <http://groups.google.com/group/python-tornado-announce>`_
 * `Stack Overflow <http://stackoverflow.com/questions/tagged/tornado>`_
-* `Wiki <https://github.com/tornadoweb/tornado/wiki/Links>`_
-
-.. |Download current version| replace:: Download version |version|
+* `维基百科 <https://github.com/tornadoweb/tornado/wiki/Links>`_
 
 Hello, world
 ------------
 
-Here is a simple "Hello, world" example web app for Tornado::
+下面是一个使用Tornado的简单 "Hello, world" web应用的示例代码::
 
     import tornado.ioloop
     import tornado.web
@@ -49,24 +42,19 @@ Here is a simple "Hello, world" example web app for Tornado::
         application.listen(8888)
         tornado.ioloop.IOLoop.current().start()
 
-This example does not use any of Tornado's asynchronous features; for
-that see this `simple chat room
-<https://github.com/tornadoweb/tornado/tree/stable/demos/chat>`_.
+上面的例子中并没有使用Tornado任何的异步特性;关注异步特性的可以看这个 `简单聊天室
+<https://github.com/tornadoweb/tornado/tree/stable/demos/chat>`_ 的例子。
 
-Installation
+安装
 ------------
 
-**Automatic installation**::
+**自动安装**::
 
     pip install tornado
 
-Tornado is listed in `PyPI <http://pypi.python.org/pypi/tornado>`_ and
-can be installed with ``pip`` or ``easy_install``.  Note that the
-source distribution includes demo applications that are not present
-when Tornado is installed in this way, so you may wish to download a
-copy of the source tarball as well.
+Troenado 存在于 `PyPI <http://pypi.python.org/pypi/tornado>`_ 列表中，因此可以使用 ``pip`` or ``easy_install`` 进行安装。需要注意的是，当你使用上述方式安装Tronado时，并不包含源代码中包含的演示应用，所以如果你需要了解演示应用程序，最后下载一个源代码的最新副本。
 
-**Manual installation**: Download :current_tarball:`z`:
+**手动安装**: 下载 :current_tarball:`z`:
 
 .. parsed-literal::
 
@@ -75,8 +63,8 @@ copy of the source tarball as well.
     python setup.py build
     sudo python setup.py install
 
-The Tornado source code is `hosted on GitHub
-<https://github.com/tornadoweb/tornado>`_.
+Tronado的源代码目前托管在 `GitHub
+<https://github.com/tornadoweb/tornado>`_ 上.
 
 **Prerequisites**: Tornado runs on Python 2.6, 2.7, 3.2, 3.3, and 3.4.  It
 requires the `certifi <https://pypi.python.org/pypi/certifi>`_ package
@@ -86,73 +74,57 @@ on Python 2.  These will be installed automatically when using
 ``pip`` or ``easy_install``).  Some Tornado features may
 require one of the following optional libraries:
 
-* `unittest2 <https://pypi.python.org/pypi/unittest2>`_ is needed to run
-  Tornado's test suite on Python 2.6 (it is unnecessary on more recent
-  versions of Python)
-* `concurrent.futures <https://pypi.python.org/pypi/futures>`_ is the
-  recommended thread pool for use with Tornado and enables the use of
-  `~tornado.netutil.ThreadedResolver`.  It is needed only on Python 2;
-  Python 3 includes this package in the standard library.
-* `pycurl <http://pycurl.sourceforge.net>`_ is used by the optional
-  ``tornado.curl_httpclient``.  Libcurl version 7.18.2 or higher is required;
-  version 7.21.1 or higher is recommended.
-* `Twisted <http://www.twistedmatrix.com>`_ may be used with the classes in
-  `tornado.platform.twisted`.
-* `pycares <https://pypi.python.org/pypi/pycares>`_ is an alternative
-  non-blocking DNS resolver that can be used when threads are not
-  appropriate.
-* `Monotime <https://pypi.python.org/pypi/Monotime>`_ adds support for
-  a monotonic clock, which improves reliability in environments
-  where clock adjustments are frequent.  No longer needed in Python 3.3.
+**先决条件**: Tornado runs on Python 2.6, 2.7, 3.2, 3.3, and 3.4. Tornado 运行在Python 2.6, 2.7, 3.2, 3.3, and 3.4 版本上。 在任何版本上，都需要依赖 `certifi <https://pypi.python.org/pypi/certifi>`_ 包，在 Python 2版本上还需要依赖 `backports.ssl_match_hostname
+<https://pypi.python.org/pypi/backports.ssl_match_hostname>`_ 包. 当你使用 ``pip`` or ``easy_install`` 安装Tornado的时候，上述依赖包将会自动被安装。如需要Tornado的一些其他特性，可能需要安装下面的可选类库：
 
-**Platforms**: Tornado should run on any Unix-like platform, although
-for the best performance and scalability only Linux (with ``epoll``)
-and BSD (with ``kqueue``) are recommended for production deployment
-(even though Mac OS X is derived from BSD and supports kqueue, its
-networking performance is generally poor so it is recommended only for
-development use).  Tornado will also run on Windows, although this
-configuration is not officially supported and is recommended only for
-development use.
+* 在Python 2.6版本运行 Torado的测试程序的时候需要依赖 `unittest2 <https://pypi.python.org/pypi/unittest2>`_ 包 (在最新的Python版本并不需要)】
+* `concurrent.futures <https://pypi.python.org/pypi/futures>`_ 被推荐最为Tronado的线程池类库，引入后可以使用 `~tornado.netutil.ThreadedResolver` 类。Python 2版本需要额外安装，Python 3版本已经将该类库作为内部标准库。
+* `pycurl <http://pycurl.sourceforge.net>` 在使用``tornado.curl_httpclient`` 类时需要使用。Libcurl的版本需要 7.18.2 或者更高的版本，最好使用 7.21.1以及更高的版本。
+* `Twisted <http://www.twistedmatrix.com>`_ 在类 `tornado.platform.twisted` 中可能需要使用。
+* `pycares <https://pypi.python.org/pypi/pycares>`_ 是一个非阻塞的DNS解析包，可以用来在不合适使用线程的地方来代替。
+* `Monotime <https://pypi.python.org/pypi/Monotime>`_ 包提供了一个单调的时钟功能，提高了在时间频繁更新环境下的可靠性。在Python 3.3版本上并不需要。
 
-Documentation
+**平台**: Tronado需要运行在任何类Unix的平台上，因此为实现最好的性能以及可扩展性，只有 Linux (支持 ``epoll``) 和 BSD (支持 ``kqueue``) 是推荐的生产部署环境（虽然 Mac OS X 系统起源于 BSD 并且支持 kqueue，但是它的网络性能普遍较差，因此仅推荐作为开发模式使用）。Tornado也可以运行在Windows系统上， 尽管这些配置并没有被正式支持，因此也仅推荐作为开发模式使用。 
+
+文档
 -------------
 
-This documentation is also available in `PDF and Epub formats
-<https://readthedocs.org/projects/tornado/downloads/>`_.
+Tronado的文档拥有 `PDF 和 Epub 两种模式可供下载 <https://readthedocs.org/projects/tornado/downloads/>`_.
 
 .. toctree::
    :titlesonly:
 
-   guide
-   webframework
+   入门指导（guide）
+   web框架（webframework）
    http
-   networking
-   coroutine
-   integration
-   utilities
-   faq
+   网络（networking）
+   协程（coroutine）
+   集成 （integration）
+   通用（utilities）
+   FAQ
    releases
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
 
-Discussion and support
+讨论和支持
 ----------------------
 
-You can discuss Tornado on `the Tornado developer mailing list
-<http://groups.google.com/group/python-tornado>`_, and report bugs on
-the `GitHub issue tracker
-<https://github.com/tornadoweb/tornado/issues>`_.  Links to additional
-resources can be found on the `Tornado wiki
-<https://github.com/tornadoweb/tornado/wiki/Links>`_.  New releases are
-announced on the `announcements mailing list
-<http://groups.google.com/group/python-tornado-announce>`_.
+你可以在 `Tornado 开发者邮件列表
+<http://groups.google.com/group/python-tornado>`_ 中进行塔伦，也可以在 `GitHub 问题跟踪
+<https://github.com/tornadoweb/tornado/issues>`_ 中汇报bug。其他的资源可以在 `Tornado 维基
+<https://github.com/tornadoweb/tornado/wiki/Links>`_ 列表中查看。最新的发行版本会在 `公告邮件列表
+<http://groups.google.com/group/python-tornado-announce>`_ 中进行通知。 
 
 Tornado is one of `Facebook's open source technologies
 <http://developers.facebook.com/opensource/>`_. It is available under
 the `Apache License, Version 2.0
 <http://www.apache.org/licenses/LICENSE-2.0.html>`_.
 
-This web site and all documentation is licensed under `Creative
-Commons 3.0 <http://creativecommons.org/licenses/by/3.0/>`_.
+Tornado 是 `Facebook 的一个开源的技术
+<http://developers.facebook.com/opensource/>`_ ，并在 `Apache License 2.0 
+<http://www.apache.org/licenses/LICENSE-2.0.html>`_ 版本下发行。 
+
+本网站和所有的文档都在 `Creative
+Commons 3.0 <http://creativecommons.org/licenses/by/3.0/>`_ 下许可。 
