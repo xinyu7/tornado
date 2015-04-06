@@ -107,7 +107,7 @@ Tronado的文档拥有 `PDF 和 Epub 两种模式可供下载 <https://readthedo
 
 你可以在 `Tornado 开发者邮件列表
 <http://groups.google.com/group/python-tornado>`_ 中进行塔伦，也可以在 `GitHub 问题跟踪
-<https://github.com/tornadoweb/tornado/issues>`_ 中汇报bug。其他的资源可以在 `Tornado 维基
+<https://github.com/tornadoweb/tornado/issues>`_ 中汇报bug。其他的资源可以在 `Tornado 维基列表
 <https://github.com/tornadoweb/tornado/wiki/Links>`_ 列表中查看。最新的发行版本会在 `公告邮件列表
 <http://groups.google.com/group/python-tornado-announce>`_ 中进行通知。 
 
