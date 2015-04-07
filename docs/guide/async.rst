@@ -12,14 +12,7 @@
 
 一个函数在return之前，等待其他事情发生（其他代码执行）的过程，称其为 **阻塞** 状态。一个函数可能会因为很多原因而阻塞：网络I/O, 磁盘I/O, 以及锁等等。事实上，*每一个* 函数运行中并使用CPU的时候至少都会发生一点点阻塞现象（为了说明相对于其他种类的阻塞，为什么需要将CPU的阻塞进行认真对待，这里举一个极端的例子，如 `bcrypt <http://bcrypt.sourceforge.net/>`_ 这样的密码hash函数,会使用几百毫秒的CPU时间，远远超过典型的网络或硬盘访问时延。
 
-A function can be blocking in some respects and non-blocking in
-others.  For example, `tornado.httpclient` in the default
-configuration blocks on DNS resolution but not on other network access
-(to mitigate this use `.ThreadedResolver` or a
-``tornado.curl_httpclient`` with a properly-configured build of
-``libcurl``).  In the context of Tornado we generally talk about
-blocking in the context of network I/O, although all kinds of blocking
-are to be minimized.
+一个函数可能在某些方面阻塞，而在其他方面却并不阻塞。比如，`tornado.httpclient` 类在默认的配置情况下，会在DNS解析上阻塞，而不会再其他的网络访问上阻塞（ 可以使用 `.ThreadedResolver` 或者 基于正确配置的 ``libcurl`` 构建环境下的 ``tornado.curl_httpclient`` 类来减轻阻塞现象）。在Tornado中，我们通常讨论的是网络I/O上的阻塞，虽然各种情况的阻塞都应该被最小化。
 
 Asynchronous
 ~~~~~~~~~~~~
