@@ -14,32 +14,23 @@
 
 一个函数可能在某些方面阻塞，而在其他方面却并不阻塞。比如，`tornado.httpclient` 类在默认的配置情况下，会在DNS解析上阻塞，而不会再其他的网络访问上阻塞（ 可以使用 `.ThreadedResolver` 或者 基于正确配置的 ``libcurl`` 构建环境下的 ``tornado.curl_httpclient`` 类来减轻阻塞现象）。在Tornado中，我们通常讨论的是网络I/O上的阻塞，虽然各种情况的阻塞都应该被最小化。
 
-Asynchronous
+异步
 ~~~~~~~~~~~~
 
-An **asynchronous** function returns before it is finished, and
-generally causes some work to happen in the background before
-triggering some future action in the application (as opposed to normal
-**synchronous** functions, which do everything they are going to do
-before returning).  There are many styles of asynchronous interfaces:
+一个 **异步** 的函数会在它执行完成之后就先返回（Return），并且在触发一些即将发生的应用程序中的行为之前，通常会在后台进行一系列的工作（而对于正常的 **同步** 函数来说，任何工作都是在程序返回之前完成的）。 下面列举了几种不同的异步接口的开发方式：
 
-* Callback argument
-* Return a placeholder (`.Future`, ``Promise``, ``Deferred``)
-* Deliver to a queue
-* Callback registry (e.g. POSIX signals)
+* 回调参数（Callback argument）
+* 返回一个占位符 (`.Future`, ``Promise``, ``Deferred``)
+* 传送到队列
+* 回调注册表 (比如 POSIX 信号)
 
-Regardless of which type of interface is used, asynchronous functions
-*by definition* interact differently with their callers; there is no
-free way to make a synchronous function asynchronous in a way that is
-transparent to its callers (systems like `gevent
-<http://www.gevent.org>`_ use lightweight threads to offer performance
-comparable to asynchronous systems, but they do not actually make
-things asynchronous).
+无论使用哪种的接口开发方式， *顾名思义* 异步函数都需要与调用方有不同的交互；不可能在对调用方透明的情况下使一个同步的函数异步化。（ `gevent
+<http://www.gevent.org>`_ 系统使用轻量级的线程模式，能够达到一个可以与异步系统媲美的性能，但它们实际上并没有进行任何异步化。）
 
-Examples
+例子
 ~~~~~~~~
 
-Here is a sample synchronous function:
+下面是一个同步函数的样例：
 
 .. testcode::
 
@@ -53,13 +44,14 @@ Here is a sample synchronous function:
 .. testoutput::
    :hide:
 
-And here is the same function rewritten to be asynchronous with a
-callback argument:
+而下面是一个用回调参数模式重写的异步函数的样例：
 
 .. testcode::
 
-    from tornado.httpclient import AsyncHTTPClient
+    # 使用了内置的异步HTTP客户端
+    from tornado.httpclient import AsyncHTTPClient 
 
+    # 回调参数模式
     def asynchronous_fetch(url, callback):
         http_client = AsyncHTTPClient()
         def handle_response(response):
@@ -69,7 +61,7 @@ callback argument:
 .. testoutput::
    :hide:
 
-And again with a `.Future` instead of a callback:
+再下面是使用占位符 `.Future` 方式替代回调方式的样例：
 
 .. testcode::
 
@@ -86,15 +78,7 @@ And again with a `.Future` instead of a callback:
 .. testoutput::
    :hide:
 
-The raw `.Future` version is more complex, but ``Futures`` are
-nonetheless recommended practice in Tornado because they have two
-major advantages.  Error handling is more consistent since the
-`.Future.result` method can simply raise an exception (as opposed to
-the ad-hoc error handling common in callback-oriented interfaces), and
-``Futures`` lend themselves well to use with coroutines.  Coroutines
-will be discussed in depth in the next section of this guide.  Here is
-the coroutine version of our sample function, which is very similar to
-the original synchronous version:
+原始的 `.Future` 版本更为复杂，但是在Tornado中，使用 ``Futures`` 仍然是被推荐的做法，主要因为它有两个很重要的优势：错误处理方式不需要改变，你可以在 `.Future.result` 方法中简单的抛出异常（而回调为导线的接口开发需要有特殊的错误处理方式），并且 ``Futures`` 可以很方便的和协程配合使用。 协程将会在下一章节中深入讨论。 上述示例使用协程进行配合后，和原生的同步版本的函数看起来十分类似：（不过这里引入了yield迭代）
 
 .. testcode::
 
@@ -109,9 +93,6 @@ the original synchronous version:
 .. testoutput::
    :hide:
 
-The statement ``raise gen.Return(response.body)`` is an artifact of
-Python 2 (and 3.2), in which generators aren't allowed to return
-values. To overcome this, Tornado coroutines raise a special kind of
-exception called a `.Return`. The coroutine catches this exception and
-treats it like a returned value. In Python 3.3 and later, a ``return
-response.body`` achieves the same result.
+``raise gen.Return(response.body)`` 语法在Python 2(以及3.2)版本中是神器，在这些版本中生成器是不允许有返回值的。 为了克服这个问题，Tornado的协程抛出了一个被成为 `.Return`的特殊种类的异常类。协程捕获这种异常，并且将它以返回值的方式处理。在Python 3.3以及更高版本中，可以直接通过 ``return
+response.body`` 的方式达到同样的效果（Python 3.3以及更高版本中支持在生成器中存在返回值）。
+
