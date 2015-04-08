@@ -1,40 +1,34 @@
-Coroutines
+协程
 ==========
 
 .. testsetup::
 
    from tornado import gen
 
-**Coroutines** are the recommended way to write asynchronous code in
-Tornado.  Coroutines use the Python ``yield`` keyword to suspend and
-resume execution instead of a chain of callbacks (cooperative
-lightweight threads as seen in frameworks like `gevent
-<http://www.gevent.org>`_ are sometimes called coroutines as well, but
-in Tornado all coroutines use explicit context switches and are called
-as asynchronous functions).
+在Tornado中 推荐使用 **协程** 进行异步代码的开发。协程使用Python的 ``yield`` 关键字将程序挂起和恢复执行，从而代替使用一连串的回调方式（ 像在 `gevent <http://www.gevent.org>`_ 中出现的轻量级线程合作的方式有时也被成为协程，但是在Tornado中所有的协程使用显式上下文切换，并且被称为异步函数。
 
-Coroutines are almost as simple as synchronous code, but without the
-expense of a thread.  They also `make concurrency easier
-<https://glyph.twistedmatrix.com/2014/02/unyielding.html>`_ to reason
-about by reducing the number of places where a context switch can
-happen.
 
-Example::
 
+使用协程开发是最接近于同步开发的方式，并且不用浪费额外的线程。 并且通过减少上下文转换的频率，协程 `使并发编程变得更容易 <https://glyph.twistedmatrix.com/2014/02/unyielding.html>`_ 。
+
+示例::
+
+    # 引入协程库gen
     from tornado import gen
 
+    # 使用gen.coroutine修饰器
     @gen.coroutine
     def fetch_coroutine(url):
         http_client = AsyncHTTPClient()
         response = yield http_client.fetch(url)
-        # In Python versions prior to 3.3, returning a value from
-        # a generator is not allowed and you must use
-        #   raise gen.Return(response.body)
-        # instead.
+        # 在Python 3.3版本之前，在生成器中是不允许有返回值的
+        #（既不允许在有生成器的函数内，使用return语句，Python解释器会报错）
+        # 所以，必须通过使用抛出异常的方式代替
+        # 如使用 raise gen.Return(response.body）
         return response.body
 
-How it works
-~~~~~~~~~~~~
+协程是如何工作的？
+~~~~~~~~~~~~~~~~
 
 A function containing ``yield`` is a **generator**.  All generators
 are asynchronous; when called they return a generator object instead
@@ -42,9 +36,11 @@ of running to completion.  The ``@gen.coroutine`` decorator
 communicates with the generator via the ``yield`` expressions, and
 with the coroutine's caller by returning a `.Future`.
 
-Here is a simplified version of the coroutine decorator's inner loop::
+Python中包含关键字 ``yield`` 的函数被称为生成器。所有的生成器都是异步的；当调用生成器的时候，会返回一个生成器的对象，而不是一直运行到结束。``@gen.coroutine`` 修饰器通过 ``yield`` 表达式与生成器进行交流，而且通过返回一个 `.Future` 与协程的调用方进行交互。
 
-    # Simplified inner loop of tornado.gen.Runner
+下面是一个协程修饰器内部循环的简单版本示例::
+
+    # tornado.gen.Runner 类的简单内部循环
     def run(self):
         # send(x) makes the current yield return x.
         # It returns when the next yield is reached
@@ -54,22 +50,19 @@ Here is a simplified version of the coroutine decorator's inner loop::
             self.run()
         future.add_done_callback(callback)
 
-The decorator receives a `.Future` from the generator, waits (without
-blocking) for that `.Future` to complete, then "unwraps" the `.Future`
-and sends the result back into the generator as the result of the
-``yield`` expression.  Most asynchronous code never touches the `.Future`
-class directly except to immediately pass the `.Future` returned by
-an asynchronous function to a ``yield`` expression.
+修饰器从生成器中接受到一个 `.Future` 对象 ，然后等待（非阻塞的）这个 `.Future` 对象 执行完成，然后“解开”这个 `.Future` 对象并且将结果作为 ``yield`` 表达式的结果传回给生成器。 除了直接通过异步函数将这个 `.Future` 对象回传给一个 ``yield`` 表达式以外，大多数的异步代码都不会接触到 这个 `.Future` 对象 。
 
-Coroutine patterns
+协程模式
 ~~~~~~~~~~~~~~~~~~
 
-Interaction with callbacks
+与回调的交互
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To interact with asynchronous code that uses callbacks instead of
 `.Future`, wrap the call in a `.Task`.  This will add the callback
 argument for you and return a `.Future` which you can yield:
+
+代替 `.Future` 使用回调的方式与异步代码进行交互，将调用封装在一个 `.Task` 里。
 
 .. testcode::
 
@@ -83,7 +76,7 @@ argument for you and return a `.Future` which you can yield:
 .. testoutput::
    :hide:
 
-Calling blocking functions
+调用阻塞的函数
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The simplest way to call a blocking function from a coroutine is to
