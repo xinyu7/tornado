@@ -57,6 +57,7 @@ To interact with asynchronous code that uses callbacks instead of
 argument for you and return a `.Future` which you can yield:
 
 # TODO:这段翻译的可能不准确
+
 代替 `.Future` 使用回调的方式与异步代码进行交互，将调用封装在一个 `.Task` 里。这样将会增加回调参数，并且返回一个 `.Future` 供调用者 yield。
 
 .. testcode::
@@ -83,9 +84,6 @@ argument for you and return a `.Future` which you can yield:
 
 并行（Parallelism）
 ^^^^^^^^^^^^^^^^^^^
-
-The coroutine decorator recognizes lists and dicts whose values are
-``Futures``, and waits for all of those ``Futures`` in parallel:
 
 协程的修饰器可以识别出值为 ``Futures`` 对象的列表和字典，并且并行等待所有 ``Futures`` 对象。
 
@@ -142,6 +140,7 @@ the loop condition from accessing the results, as in this example
 from `Motor <http://motor.readthedocs.org/en/stable/>`_::
 
 # TODO:这段翻译的可能不准确
+
 使用协程进行循环是很困难的，因为在Python中，无法在一个 ``for`` 或者 ``while`` 循环的每次迭代上 ``yield`` ，并且捕获yield的结果。相反，你将需要去通过返回结果分离出循环条件，下面是一个 `Motor <http://motor.readthedocs.org/en/stable/>`_ 中的例子::
 
     import motor
