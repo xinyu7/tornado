@@ -30,12 +30,6 @@
 协程是如何工作的？
 ~~~~~~~~~~~~~~~~
 
-A function containing ``yield`` is a **generator**.  All generators
-are asynchronous; when called they return a generator object instead
-of running to completion.  The ``@gen.coroutine`` decorator
-communicates with the generator via the ``yield`` expressions, and
-with the coroutine's caller by returning a `.Future`.
-
 Python中包含关键字 ``yield`` 的函数被称为生成器。所有的生成器都是异步的；当调用生成器的时候，会返回一个生成器的对象，而不是一直运行到结束。``@gen.coroutine`` 修饰器通过 ``yield`` 表达式与生成器进行交流，而且通过返回一个 `.Future` 与协程的调用方进行交互。
 
 下面是一个协程修饰器内部循环的简单版本示例::
@@ -62,15 +56,15 @@ To interact with asynchronous code that uses callbacks instead of
 `.Future`, wrap the call in a `.Task`.  This will add the callback
 argument for you and return a `.Future` which you can yield:
 
-代替 `.Future` 使用回调的方式与异步代码进行交互，将调用封装在一个 `.Task` 里。
+# TODO:这段翻译的可能不准确
+代替 `.Future` 使用回调的方式与异步代码进行交互，将调用封装在一个 `.Task` 里。这样将会增加回调参数，并且返回一个 `.Future` 供调用者 yield。
 
 .. testcode::
 
     @gen.coroutine
     def call_task():
-        # Note that there are no parens on some_function.
-        # This will be translated by Task into
-        #   some_function(other_args, callback=callback)
+        # 注意，在some_function后面并没有括号。
+        # 下面的语句将被 Task 翻译成 some_function(other_args, callback=callback)
         yield gen.Task(some_function, other_args)
 
 .. testoutput::
@@ -79,9 +73,7 @@ argument for you and return a `.Future` which you can yield:
 调用阻塞的函数
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The simplest way to call a blocking function from a coroutine is to
-use a `~concurrent.futures.ThreadPoolExecutor`, which returns
-``Futures`` that are compatible with coroutines::
+在协程中调用一个阻塞函数的最简单的方式是使用一个 `~concurrent.futures.ThreadPoolExecutor` 类，它返回一个与协程兼容的 ``Futures` 对象。
 
     thread_pool = ThreadPoolExecutor(4)
 
@@ -89,11 +81,13 @@ use a `~concurrent.futures.ThreadPoolExecutor`, which returns
     def call_blocking():
         yield thread_pool.submit(blocking_func, args)
 
-Parallelism
-^^^^^^^^^^^
+并行（Parallelism）
+^^^^^^^^^^^^^^^^^^^
 
 The coroutine decorator recognizes lists and dicts whose values are
 ``Futures``, and waits for all of those ``Futures`` in parallel:
+
+协程的修饰器可以识别出值为 ``Futures`` 对象的列表和字典，并且并行等待所有 ``Futures`` 对象。
 
 .. testcode::
 
@@ -105,29 +99,30 @@ The coroutine decorator recognizes lists and dicts whose values are
     @gen.coroutine
     def parallel_fetch_many(urls):
         responses = yield [http_client.fetch(url) for url in urls]
-        # responses is a list of HTTPResponses in the same order
+        # responses 是一个与请求顺序相同的HTTPResponses列表
 
     @gen.coroutine
     def parallel_fetch_dict(urls):
         responses = yield {url: http_client.fetch(url)
                             for url in urls}
-        # responses is a dict {url: HTTPResponse}
+        # responses 是一个key为url，值为HTTPResponse的字典 {url: HTTPResponse}
 
 .. testoutput::
    :hide:
 
-Interleaving
-^^^^^^^^^^^^
+交叉存取（Interleaving）
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-Sometimes it is useful to save a `.Future` instead of yielding it
-immediately, so you can start another operation before waiting:
+有些情况下，直接存储一个 `.Future` 对象而不是直接的yield它也是有用处的，通过这种方式，可以在等待之前开始另一个操作。
 
 .. testcode::
 
     @gen.coroutine
     def get(self):
+        # 将fetch_future存储，而不是直接 yield self.fetch_next_chunk()
         fetch_future = self.fetch_next_chunk()
         while True:
+            # 在这里再 yield
             chunk = yield fetch_future
             if chunk is None: break
             self.write(chunk)
@@ -137,7 +132,7 @@ immediately, so you can start another operation before waiting:
 .. testoutput::
    :hide:
 
-Looping
+循环
 ^^^^^^^
 
 Looping is tricky with coroutines since there is no way in Python
@@ -145,6 +140,9 @@ to ``yield`` on every iteration of a ``for`` or ``while`` loop and
 capture the result of the yield.  Instead, you'll need to separate
 the loop condition from accessing the results, as in this example
 from `Motor <http://motor.readthedocs.org/en/stable/>`_::
+
+# TODO:这段翻译的可能不准确
+使用协程进行循环是很困难的，因为在Python中，无法在一个 ``for`` 或者 ``while`` 循环的每次迭代上 ``yield`` ，并且捕获yield的结果。相反，你将需要去通过返回结果分离出循环条件，下面是一个 `Motor <http://motor.readthedocs.org/en/stable/>`_ 中的例子::
 
     import motor
     db = motor.MotorClient().test
