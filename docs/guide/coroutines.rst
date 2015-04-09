@@ -74,7 +74,7 @@ argument for you and return a `.Future` which you can yield:
 调用阻塞的函数
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-在协程中调用一个阻塞函数的最简单的方式是使用一个 `~concurrent.futures.ThreadPoolExecutor` 类，它返回一个与协程兼容的 ``Futures` 对象。
+在协程中调用一个阻塞函数的最简单的方式是使用一个 `~concurrent.futures.ThreadPoolExecutor` 类，它返回一个与协程兼容的 ``Futures` 对象::
 
     thread_pool = ThreadPoolExecutor(4)
 
