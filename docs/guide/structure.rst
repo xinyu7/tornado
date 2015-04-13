@@ -9,9 +9,6 @@ Tornado web应用程序架构
 
 一个Tornado web应用程序通常由一个或一个以上的 `.RequestHandler` 子类组成，一个 `.Application`  对象构成了请求到句柄的路由映射，并且使用一个 ``main()`` 函数来开启服务端。
 
-
-A minimal "hello world" example looks something like this:
-
 这里举一个最小的 "hello world" 的例子来说明一下：
 
 .. testcode::
@@ -68,13 +65,10 @@ A minimal "hello world" example looks something like this:
         url(r"/story/([0-9]+)", StoryHandler, dict(db=db), name="story")
         ])
 
-The `.Application` constructor takes many keyword arguments that
-can be used to customize the behavior of the application and enable
-optional features; see `.Application.settings` for the complete list.
 
 `.Application` 类的构造函数包含了很多的关键字参数，使用这些关键字可以用来定制应用程序的行为以及开启可选功能。请查看 `.Application.settings` 类的完整列表。
 
-Subclassing ``RequestHandler``
+
 ``RequestHandler`` 子类
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -84,16 +78,10 @@ Subclassing ``RequestHandler``
 在一个handler之中，可以调用如 `.RequestHandler.render` 或
 `.RequestHandler.write` 方法来生成一个response响应。 ``render()`` 方法通过加载一个命名的 `.Template` 对象并通过传入的参数进行渲染。 ``write()`` 方法用来作为不使用模板时的基本输出，支持输入字符串、字节流或者字典（字典将会被编码成JSON格式）。
 
-Many methods in `.RequestHandler` are designed to be overridden in
-subclasses and be used throughout the application.  It is common
-to define a ``BaseHandler`` class that overrides methods such as
-`~.RequestHandler.write_error` and `~.RequestHandler.get_current_user`
-and then subclass your own ``BaseHandler`` instead of `.RequestHandler`
-for all your specific handlers.
-
-
 `.RequestHandler` 类中的许多方法被设计成需要在子类中进行重写并贯彻整个应用。定义一个 ``BaseHandler`` 类并重写
 如 `~.RequestHandler.write_error` 和 `~.RequestHandler.get_current_user` 这样的方法，然后使用重写过的``BaseHandler`` 代替 `.RequestHandler` 作为所有自定义handler类的父类。
+
+
 Handling request input
 ~~~~~~~~~~~~~~~~~~~~~~
 
