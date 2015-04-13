@@ -66,7 +66,7 @@ Tornado web应用程序架构
         ])
 
 
-`.Application` 类的构造函数包含了很多的关键字参数，使用这些关键字可以用来定制应用程序的行为以及开启可选功能。请查看 `.Application.settings` 类的完整列表。
+`.Application` 类的构造函数包含了很多的关键字参数，使用这些关键字可以用来定制应用程序的行为以及开启可选功能。点击这里查看 `.Application.settings` 类的完整列表。
 
 
 ``RequestHandler`` 子类
