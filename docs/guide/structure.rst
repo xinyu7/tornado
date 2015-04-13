@@ -40,7 +40,7 @@ Tornado web应用程序架构
 
 路由表是由一些 `.URLSpec` 对象组成的列表（或元组），每个对象（至少）包含一个正则表达式和一个句柄类(RequestHandler类的子类)。按照顺序进行匹配，第一个匹配成功的规则将会被使用。如果某个正则表达式包含捕获组，这些捕获组将会成为 *路径参数* 并且会被传送给句柄类的HTTP方法。如果一个字典作为某个 `.URLSpec` 对象的第三个元素，它将会作为 *初始化参数* 传递给 `.RequestHandler.initialize` 方法。最后，`.URLSpec` 对象可以进行命名，并且可以通过 `.RequestHandler.reverse_url` 方法中使用到它。
 
-举个例子：这下面的代码片段中，根地址URL ``/`` 被映射到 ``MainHandler`` 对象，并且映射 ``StoryHandler`` 对象的URL ``/story/`` 中含有一个数字正则。对应的数字会被传给（作为字符串）``StoryHandler.get`` 方法。
+举个例子：这下面的代码片段中，根地址URL ``/`` 被映射到 ``MainHandler`` 对象，并且映射 ``StoryHandler`` 对象的URL ``/story/`` 中含有一个数字正则。对应的数字会被传给（作为字符串)  ``StoryHandler.get`` 方法。
 
 ::
 
