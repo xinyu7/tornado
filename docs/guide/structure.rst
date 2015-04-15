@@ -90,33 +90,33 @@ request with ``self.request``.  See the class definition for
 `~tornado.httputil.HTTPServerRequest` for a complete list of
 attributes.
 
-Request data in the formats used by HTML forms will be parsed for you
-and is made available in methods like `~.RequestHandler.get_query_argument`
-and `~.RequestHandler.get_body_argument`.
+# TODO: 这句不是很好理解
+可以通过访问 ``self.request`` 查看当前对象的请求数据。可以查看 `~tornado.httputil.HTTPServerRequest` 类的定义，了解完整的属性列表。
+
+使用HTML forms形式的请求数据将会被解析，可以通过使用如 `~.RequestHandler.get_query_argument` （get方法使用)
+和 `~.RequestHandler.get_body_argument` (post方法使用) 方法获取请求数据。
+
 
 .. testcode::
 
     class MyFormHandler(RequestHandler):
         def get(self):
+            # 通过get方法将得到一个html form，填写完成后点击submit将调用post方法
             self.write('<html><body><form action="/myform" method="POST">'
                        '<input type="text" name="message">'
                        '<input type="submit" value="Submit">'
                        '</form></body></html>')
 
         def post(self):
-            self.set_header("Content-Type", "text/plain")
+            # post方法中通过self.get_body_argument("message")来取得上面form中post的数据message
+            self.set_header("Content-Type", "text/plain") # 设置header
             self.write("You wrote " + self.get_body_argument("message"))
 
 .. testoutput::
    :hide:
 
-Since the HTML form encoding is ambiguous as to whether an argument is
-a single value or a list with one element, `.RequestHandler` has
-distinct methods to allow the application to indicate whether or not
-it expects a list.  For lists, use
-`~.RequestHandler.get_query_arguments` and
-`~.RequestHandler.get_body_arguments` instead of their singular
-counterparts.
+由于HTML表单的提交的参数可能是一个单一值，也有可能是一个含有多个元素的列表， `.RequestHandler` 对象提供了一个明确的方法来允许应用程序来判断是否使用单一值还是列表。如果是列表，请使用 `~.RequestHandler.get_query_arguments` 和 `~.RequestHandler.get_body_arguments` ，否则请使用 `~.RequestHandler.get_query_argument` 和 `~.RequestHandler.get_body_argument` 获取单一值。
+
 
 Files uploaded via a form are available in ``self.request.files``,
 which maps names (the name of the HTML ``<input type="file">``
@@ -129,12 +129,10 @@ By default uploaded files are fully buffered in memory; if you need to
 handle files that are too large to comfortably keep in memory see the
 `.stream_request_body` class decorator.
 
-Due to the quirks of the HTML form encoding (e.g. the ambiguity around
-singular versus plural arguments), Tornado does not attempt to unify
-form arguments with other types of input.  In particular, we do not
-parse JSON request bodies.  Applications that wish to use JSON instead
-of form-encoding may override `~.RequestHandler.prepare` to parse their
-requests::
+# TODO: 文件上传之前没有用过，实践之后再确认一些这段的翻译内容
+通过表单上传的文件可以通过 ``self.request.files`` 进行访问，文件名（ HTML表单中 ``<input type="file">`` 元素的名字） 映射成一个文件列表。每一个文件是一个像 ``{"filename":..., "content_type":..., "body":...}`` 这样的表单字典。 ``文件`` 对象必须通过包装(即Content-Type使用 ``multipart/form-data``)才有效。如果不适用这种方式包装，原始的上传数据会存在于 ``self.request.body`` 。 默认情况下上传的文件在内存中完全进行缓存。如果你需要处理一些很大的文件，且不希望占用过多的系统内存，可以使用 `.stream_request_body` 类修饰器。
+
+由于HTML表单特别的编码方式（既，可能是单值也可能是多指的歧义问题），Tornado 没有尝试统一不同输入形式的表单参数。特别需要注意的是，Tornado并没有解析JSON格式的请求体(JSON request bodies)。使用JSON格式的应用程序（如REST API）可以重写 `~.RequestHandler.prepare` 方法来解析请求。如下面所示： 
 
     def prepare(self):
         if self.request.headers["Content-Type"].startswith("application/json"):
@@ -142,15 +140,12 @@ requests::
         else:
             self.json_args = None
 
-Overriding RequestHandler methods
+重写RequestHandler方法
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to ``get()``/``post()``/etc, certain other methods in
-`.RequestHandler` are designed to be overridden by subclasses when
-necessary. On every request, the following sequence of calls takes
-place:
+除了 ``get()``/``post()``等方法，在 `.RequestHandler` 类中还有其他的方法也允许在子类中进行重写。在每一次请求中，下面的一些列调用都会发生：
 
-1. A new `.RequestHandler` object is created on each request
+1. 在每一次请求中，一个新的 `.RequestHandler` 对象都会被创建
 2. `~.RequestHandler.initialize()` is called with the initialization
    arguments from the `.Application` configuration. ``initialize``
    should typically just save the arguments passed into member
