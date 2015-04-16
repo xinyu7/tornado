@@ -169,8 +169,6 @@ handle files that are too large to comfortably keep in memory see the
 
 # TODO: 这段暂时没理解
 
-This method may produce output normally via
-methods such as `~RequestHandler.write` and `~RequestHandler.render`.
 If the error was caused by an exception, an ``exc_info`` triple will
 be passed as a keyword argument (note that this exception is not
 guaranteed to be the current exception in `sys.exc_info`, so
