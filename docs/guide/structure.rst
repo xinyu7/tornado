@@ -82,7 +82,7 @@ Tornado web应用程序架构
 如 `~.RequestHandler.write_error` 和 `~.RequestHandler.get_current_user` 这样的方法，然后使用重写过的``BaseHandler`` 代替 `.RequestHandler` 作为所有自定义handler类的父类。
 
 
-Handling request input
+处理请求的输入
 ~~~~~~~~~~~~~~~~~~~~~~
 
 The request handler can access the object representing the current
@@ -145,55 +145,31 @@ handle files that are too large to comfortably keep in memory see the
 
 除了 ``get()``/``post()``等方法，在 `.RequestHandler` 类中还有其他的方法也允许在子类中进行重写。在每一次请求中，下面的一些列调用都会发生：
 
-1. 在每一次请求中，一个新的 `.RequestHandler` 对象都会被创建
-2. `~.RequestHandler.initialize()` is called with the initialization
-   arguments from the `.Application` configuration. ``initialize``
-   should typically just save the arguments passed into member
-   variables; it may not produce any output or call methods like
-   `~.RequestHandler.send_error`.
-3. `~.RequestHandler.prepare()` is called. This is most useful in a
-   base class shared by all of your handler subclasses, as ``prepare``
-   is called no matter which HTTP method is used. ``prepare`` may
-   produce output; if it calls `~.RequestHandler.finish` (or
-   ``redirect``, etc), processing stops here.
-4. One of the HTTP methods is called: ``get()``, ``post()``, ``put()``,
-   etc. If the URL regular expression contains capturing groups, they
-   are passed as arguments to this method.
-5. When the request is finished, `~.RequestHandler.on_finish()` is
-   called.  For synchronous handlers this is immediately after
-   ``get()`` (etc) return; for asynchronous handlers it is after the
-   call to `~.RequestHandler.finish()`.
+1. 在每一次请求中，一个新的 `.RequestHandler` 对象都会被创建。
+2. `~.RequestHandler.initialize()` 会被优先调用，在 `.Application` 里面配置的字典参数会作为该方法的输入参数。``initialize`` 初始化操作通常只是将输入的参数传递该类对象的成员变量保存，而不应该产生任何的输出和方法调用。
+3. 之后 `~.RequestHandler.prepare()` 方法会被调用。 无论哪一个HTTP方法被使用， ``prepare``  都会被调用，它是在所有自定义的子类中共享的最有用的方法。可以使用 ``prepare`` 方法产生输入；如果在该方法中调用了 `~.RequestHandler.finish` （或者 ``redirect`` 等）方法，本次处理就会在这停止。
+4. 接下来 ``get()``, ``post()``, ``put()`` 等HTTP方法将会被调用，如果URL的正则表达式包含了捕获组，将会将其作为参数传给对应的方法。
+5. 当请求处理完成时， `~.RequestHandler.on_finish()` 方法会被调用。对于同步的请求来说，在 ``get()`` (等)方法返回后会立刻执行；而对于异步请求，它会在调用 `~.RequestHandler.finish()` 方法完成后才执行。
 
-All methods designed to be overridden are noted as such in the
-`.RequestHandler` documentation.  Some of the most commonly
-overridden methods include:
+就像在 `.RequestHandler` 文档中记录的那样，所有的方法都是被设计在子类重写的。一些最常用的重写方法包括：
 
-- `~.RequestHandler.write_error` -
-  outputs HTML for use on error pages.
-- `~.RequestHandler.on_connection_close` - called when the client
-  disconnects; applications may choose to detect this case and halt
-  further processing.  Note that there is no guarantee that a closed
-  connection can be detected promptly.
-- `~.RequestHandler.get_current_user` - see :ref:`user-authentication`
-- `~.RequestHandler.get_user_locale` - returns `.Locale` object to use
-  for the current user
-- `~.RequestHandler.set_default_headers` - may be used to set
-  additional headers on the response (such as a custom ``Server``
-  header)
+- `~.RequestHandler.write_error`  - 用来在错误页面输出HTML代码。
+- `~.RequestHandler.on_connection_close` - 当客户端断开连接的时候会被调用；应用程序可以探测到这种情况并停止之后的处理过程；需要注意的是，一个关闭的连接并不能保证及时的被发现。
+- `~.RequestHandler.get_current_user` - 请查看 :ref:`user-authentication`
+- `~.RequestHandler.get_user_locale` - 为当前的用户返回 `.Locale` 对象
+- `~.RequestHandler.set_default_headers` - 可以用来在返回包中加入额外的headers（如用户自定义的 ``Server`` header）
 
-Error Handling
+
+错误处理
 ~~~~~~~~~~~~~~
 
-If a handler raises an exception, Tornado will call
-`.RequestHandler.write_error` to generate an error page.
-`tornado.web.HTTPError` can be used to generate a specified status
-code; all other exceptions return a 500 status.
+如果处理过程中抛出了一个异常，Tornado将会调用 `.RequestHandler.write_error` 方法来生产一个错误页面。可以使用 `tornado.web.HTTPError` 方法来生成一个特殊状态码的异常；而所有的其他异常都会返回一个HTTP 500 错误。
 
-The default error page includes a stack trace in debug mode and a
-one-line description of the error (e.g. "500: Internal Server Error")
-otherwise.  To produce a custom error page, override
-`RequestHandler.write_error` (probably in a base class shared by all
-your handlers).  This method may produce output normally via
+默认的错误页在debug模式会包含一个stack trace以及一行错误描述（如，"500: Internal Server Error"）。如果想生成自定义的错误页，需要重写 `RequestHandler.write_error` 方法（可以写一个基类用于给其他子类共享）。 这个方法通常可以使用 `~RequestHandler.write` 和 `~RequestHandler.render` 方法产生输出。
+
+# TODO: 这段暂时没理解
+
+This method may produce output normally via
 methods such as `~RequestHandler.write` and `~RequestHandler.render`.
 If the error was caused by an exception, an ``exc_info`` triple will
 be passed as a keyword argument (note that this exception is not
