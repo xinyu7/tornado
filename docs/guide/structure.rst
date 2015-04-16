@@ -175,6 +175,8 @@ guaranteed to be the current exception in `sys.exc_info`, so
 ``write_error`` must use e.g.  `traceback.format_exception` instead of
 `traceback.format_exc`).
 
+# TODO: 这段理解的也不好
+
 It is also possible to generate an error page from regular handler
 methods instead of ``write_error`` by calling
 `~.RequestHandler.set_status`, writing a response, and returning.
@@ -182,15 +184,11 @@ The special exception `tornado.web.Finish` may be raised to terminate
 the handler without calling ``write_error`` in situations where simply
 returning is not convenient.
 
-For 404 errors, use the ``default_handler_class`` `Application setting
-<.Application.settings>`.  This handler should override
-`~.RequestHandler.prepare` instead of a more specific method like
-``get()`` so it works with any HTTP method.  It should produce its
-error page as described above: either by raising a ``HTTPError(404)``
-and overriding ``write_error``, or calling ``self.set_status(404)``
-and producing the response directly in ``prepare()``.
+也可以通过调用 `~.RequestHandler.set_status` 设置状态码，写回相应数据，并且返回。用这样的方式来代替 ``write_error`` 方法来生成错误页。在简单的返回不方便的情况下，可以抛出 `tornado.web.Finish` 这个特殊的异常方法终止此次处理过程，而不再调用 ``write_error``。
 
-Redirection
+对于404错误来说，可以在 `应用设置 <.Application.settings>` 中设置 默认的处理句柄类 - ``default_handler_class`` . 这个句柄类必须重写 `~.RequestHandler.prepare` 方法，而不是像 ``get()`` 等更详细的方法，这样它会在所有的HTTP 方法中都生效。 所以，像上面所说的，产生错误页面有两种方式：或者通过抛出一个 ``HTTPError(404)`` 异常并且重写 ``write_error`` 方法，或者调用 ``self.set_status(404)`` 方法并且在 ``prepare()`` 方法中直接产生返回数据（使用``self.write``）。
+
+重定向
 ~~~~~~~~~~~
 
 There are two main ways you can redirect requests in Tornado:
