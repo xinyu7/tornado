@@ -194,29 +194,19 @@ returning is not convenient.
 There are two main ways you can redirect requests in Tornado:
 `.RequestHandler.redirect` and with the `.RedirectHandler`.
 
-You can use ``self.redirect()`` within a `.RequestHandler` method to
-redirect users elsewhere. There is also an optional parameter
-``permanent`` which you can use to indicate that the redirection is
-considered permanent.  The default value of ``permanent`` is
-``False``, which generates a ``302 Found`` HTTP response code and is
-appropriate for things like redirecting users after successful
-``POST`` requests.  If ``permanent`` is true, the ``301 Moved
-Permanently`` HTTP response code is used, which is useful for
-e.g. redirecting to a canonical URL for a page in an SEO-friendly
-manner.
+在Tornado中有两种主要的方式来进行重定向请求： `.RequestHandler.redirect` 方法和 使用 `.RedirectHandler`.
 
-`.RedirectHandler` lets you configure redirects directly in your
-`.Application` routing table.  For example, to configure a single
-static redirect::
+可以在一个 `.RequestHandler` 方法中使用 ``self.redirect()`` 将用户重定向到别处。此外，还有一个可选的参数
+ `` permanent`` ，你可以用它来表明重定向是永久性的。 ``permanent`` 参数的默认值是 ``False`` ，生成一个 ``302 Found`` 的HTTP响应码，它比较适用于在用户 ``POST`` 请求成功后进行重定向之类的需求。如果 ``permanent`` 设置成 ``True`` ,将会生成 ``301 Moved Permanently`` 的HTTP响应码，某些情况下也是很有用的，比如使用搜索引擎友好的方式下将一个页面重定向到权威地址。
+
+`.RedirectHandler` 类允许直接在 `.Application` 路由表中进行重定向配置。下面的例子展示了如何配置一个单向的静态重定向：
 
     app = tornado.web.Application([
         url(r"/app", tornado.web.RedirectHandler,
             dict(url="http://itunes.apple.com/my-app-id")),
         ])
 
-`.RedirectHandler` also supports regular expression substitutions.
-The following rule redirects all requests beginning with ``/pictures/``
-to the prefix ``/photos/`` instead::
+`.RedirectHandler` 也支持正则表达式替换。下面的规则将所有 ``/pictures/`` 开头的请求重定向到 ``/photos/`` ::
 
     app = tornado.web.Application([
         url(r"/photos/(.*)", MyPhotoHandler),
@@ -224,14 +214,9 @@ to the prefix ``/photos/`` instead::
             dict(url=r"/photos/\1")),
         ])
 
-Unlike `.RequestHandler.redirect`, `.RedirectHandler` uses permanent
-redirects by default.  This is because the routing table does not change
-at runtime and is presumed to be permanent, while redirects found in
-handlers are likely to be the result of other logic that may change.
-To send a temporary redirect with a `.RedirectHandler`, add
-``permanent=False`` to the `.RedirectHandler` initialization arguments.
+与 `.RequestHandler.redirect` 不同的是， `.RedirectHandler` 默认使用永久重定向。这是因为路由表不会在程序运行时改变，所以认为是永久性的，然而重定向也有可能是请求中其他逻辑改变的结果。 使用 `.RedirectHandler` 时将 ``permanent=False`` 加到 `.RedirectHandler` 的初始化参数中就可以产生一个临时的重定向了。
 
-Asynchronous handlers
+异步请求
 ~~~~~~~~~~~~~~~~~~~~~
 
 Tornado handlers are synchronous by default: when the
