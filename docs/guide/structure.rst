@@ -219,42 +219,28 @@ There are two main ways you can redirect requests in Tornado:
 异步请求
 ~~~~~~~~~~~~~~~~~~~~~
 
-Tornado handlers are synchronous by default: when the
-``get()``/``post()`` method returns, the request is considered
-finished and the response is sent.  Since all other requests are
-blocked while one handler is running, any long-running handler should
-be made asynchronous so it can call its slow operations in a
-non-blocking way.  This topic is covered in more detail in
-:doc:`async`; this section is about the particulars of
-asynchronous techniques in `.RequestHandler` subclasses.
+Tornado的请求默认是同步的：当 ``get()``/``post()`` 方法返回的时候，请求被认为已经结束并且答复已经发出。由于在一个请求运行的时候，所有其他的请求都会被阻塞，因此长时间运行的请求应该异步化，以便于使用非阻塞的方式调用较慢的请求。在 :doc:`async` 中进行了更详细的阐述；这部分是对 `.RequestHandler` 子类中异步技术细节的相关说明。
 
-The simplest way to make a handler asynchronous is to use the
-`.coroutine` decorator.  This allows you to perform non-blocking I/O
-with the ``yield`` keyword, and no response will be sent until the
-coroutine has returned.  See :doc:`coroutines` for more details.
+使一个请求异步化的最简单的方式是使用 `.coroutine` 修饰器，它允许你使用  ``yield`` 关键字生成非阻塞I/O，并且在协程返回之前，不会有响应被发送。 查看 :doc:`coroutines` 文档查看更详细的资料。
 
-In some cases, coroutines may be less convenient than a
-callback-oriented style, in which case the `.tornado.web.asynchronous`
-decorator can be used instead.  When this decorator is used the response
-is not automatically sent; instead the request will be kept open until
-some callback calls `.RequestHandler.finish`.  It is up to the application
-to ensure that this method is called, or else the user's browser will
-simply hang.
+在某些场景下，相比于回调为主导的方式，协程可能更不方便，在这种情况下，可以使用 `.tornado.web.asynchronous` 修饰器来替代。当这个修饰器被使用的时候，响应不会自动的发送；相反请求会保持开放状态，直到某些回调函数调用了 `.RequestHandler.finish` 方法。要确认在应用程序中调用了该方法，否则用户的浏览器会被hang住。
 
-Here is an example that makes a call to the FriendFeed API using
-Tornado's built-in `.AsyncHTTPClient`:
+下面是一个使用Tornado的内置的异步HTTP客户端 `.AsyncHTTPClient` 调用 FriendFeed API的例子:
 
 .. testcode::
 
     class MainHandler(tornado.web.RequestHandler):
+        # 使用@tornado.web.asynchronous异步修饰器
         @tornado.web.asynchronous
         def get(self):
             http = tornado.httpclient.AsyncHTTPClient()
+            # 使用回调方式，http请求结束后，将结果作为参赛回调callback方法，既self.on_response
             http.fetch("http://friendfeed-api.com/v2/feed/bret",
                        callback=self.on_response)
 
         def on_response(self, response):
             if response.error: raise tornado.web.HTTPError(500)
+            # Tornado中内置json解码函数，不需要使用json包
             json = tornado.escape.json_decode(response.body)
             self.write("Fetched " + str(len(json["entries"])) + " entries "
                        "from the FriendFeed API")
@@ -263,19 +249,18 @@ Tornado's built-in `.AsyncHTTPClient`:
 .. testoutput::
    :hide:
 
-When ``get()`` returns, the request has not finished. When the HTTP
-client eventually calls ``on_response()``, the request is still open,
-and the response is finally flushed to the client with the call to
-``self.finish()``.
+当 ``get()`` 方法返回的时候，本次请求还没有结束。当HTTP客户端最终调用 ``on_response()`` 方法的时候，本次请求仍然处于开放状态，最后调用 ``self.finish()`` 方法将响应结果刷到客户端。
 
-For comparison, here is the same example using a coroutine:
+为了便于比较，这里是一个使用协程相同的例子(貌似这个看起来还是更简单）:
 
 .. testcode::
 
     class MainHandler(tornado.web.RequestHandler):
+        # 这里使用协程修饰器
         @tornado.gen.coroutine
         def get(self):
             http = tornado.httpclient.AsyncHTTPClient()
+            # 使用yield而不是用回调
             response = yield http.fetch("http://friendfeed-api.com/v2/feed/bret")
             json = tornado.escape.json_decode(response.body)
             self.write("Fetched " + str(len(json["entries"])) + " entries "
@@ -284,11 +269,7 @@ For comparison, here is the same example using a coroutine:
 .. testoutput::
    :hide:
 
-For a more advanced asynchronous example, take a look at the `chat
-example application
-<https://github.com/tornadoweb/tornado/tree/stable/demos/chat>`_, which
-implements an AJAX chat room using `long polling
-<http://en.wikipedia.org/wiki/Push_technology#Long_polling>`_.  Users
-of long polling may want to override ``on_connection_close()`` to
-clean up after the client closes the connection (but see that method's
-docstring for caveats).
+对于更高级的异步例子，可以查看 `聊天应用例子
+<https://github.com/tornadoweb/tornado/tree/stable/demos/chat>`_ ，它使用 `long polling
+<http://en.wikipedia.org/wiki/Push_technology#Long_polling>`_ 实现了一个AJAX的聊天室。
+长轮询的用户可能需要去重写 ``on_connection_close()`` 方法在客户端关闭连接之后后来清理现场。（请注意查看该方法文档中的警告事项）
