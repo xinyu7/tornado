@@ -1,16 +1,19 @@
-Running and deploying
+运行与部署
 =====================
 
-Since Tornado supplies its own HTTPServer, running and deploying it is
-a little different from other Python web frameworks.  Instead of
-configuring a WSGI container to find your application, you write a
+由于Tornado内置HTTP服务器，因此运行和部署与其他的Python web框架有些不同。与配置一个WSGI容器来运行应用不同的是，你需要写一个 ``main()`` 函数来开启应用。
+# TODO: 需要了解一下WSGI的原理
+Instead of configuring a WSGI container to find your application, you write a
 ``main()`` function that starts the server:
 
 .. testcode::
 
     def main():
+        # 创建应用
         app = make_app()
+        # 监听端口
         app.listen(8888)
+        # 开启IOLoop循环
         IOLoop.current().start()
 
     if __name__ == '__main__':
@@ -19,63 +22,51 @@ configuring a WSGI container to find your application, you write a
 .. testoutput::
    :hide:
 
-Configure your operating system or process manager to run this program to
-start the server. Please note that it may be necessary to increase the number 
-of open files per process (to avoid "Too many open files"-Error). 
-To raise this limit (setting it to 50000 for example)  you can use the ulimit command, 
-modify /etc/security/limits.conf or setting ``minfds`` in your supervisord config.
+接下来需要配置操作系统或者程序管理器来开启服务端程序。请注意可能需要调大每一个进程的允许打开的最大文件句柄数量（以防止出现“Too many open files”的错误）。可以用以下几个方式来调大limit（比如调大到50000）：ulimit 命令；修改 /etc/security/limits.conf 文件或者通过修改进程监控程序中的 ``minfds`` 配置(比如supervisord）。
 
 Processes and ports
+进程和端口
 ~~~~~~~~~~~~~~~~~~~
 
-Due to the Python GIL (Global Interpreter Lock), it is necessary to run
-multiple Python processes to take full advantage of multi-CPU machines.
-Typically it is best to run one process per CPU.
+由于Python GIL(Global Interpreter Lock)的原因，需要运行多个Python进程来充分利用多核CPU的性能。通常来说，最好是每个CPU一个进程。
 
-Tornado includes a built-in multi-process mode to start several
-processes at once.  This requires a slight alteration to the standard
-main function:
+Tornado包含一个内置的多进程模式可用来一次性开启多个进程。需要对标准的主函数做一点改造：
 
 .. testcode::
 
     def main():
+        # 创建应用
         app = make_app()
+        # 创建server
         server = tornado.httpserver.HTTPServer(app)
+        # 绑定端口
         server.bind(8888)
+        # 每一个进程fork一个子进程
         server.start(0)  # forks one process per cpu
+        # 开始IOLoop循环
         IOLoop.current().start()
 
 .. testoutput::
    :hide:
 
-This is the easiest way to start multiple processes and have them all
-share the same port, although it has some limitations.  First, each
+#TODO: First, each
 child process will have its own IOLoop, so it is important that
 nothing touch the global IOLoop instance (even indirectly) before the
-fork.  Second, it is difficult to do zero-downtime updates in this model.
-Finally, since all the processes share the same port it is more difficult
-to monitor them individually.
+fork.  这段话需要理解一下。
 
-For more sophisticated deployments, it is recommended to start the processes
-independently, and have each one listen on a different port.
-The "process groups" feature of `supervisord <http://www.supervisord.org>`_
-is one good way to arrange this.  When each process uses a different port,
-an external load balancer such as HAProxy or nginx is usually needed
-to present a single address to outside visitors.
+这是开启多进程模式的最简单方式，并且所有的进程共享相同的端口，尽管它有一些限制。首先，每一个子进程将会拥有自己的IOLoop，所以务必注意在fork之前，不能与全局IOLoop实例有任何的直接接触（甚至是间接的也不可以）。其次，这种方式下很难做到零宕机更新。最后，由于所有的进程共享相同的端口，因此很难单独的进行监控。
 
+对于更复杂的部署，建议单独的启动每一个进程，并且每个进程监听不同的端口。`supervisord <http://www.supervisord.org>`_ 的 "进程组（process groups）" 功能是一个很好的解决手段。当每个进程使用不同的端口时，就需要使用一个额外的负载均衡程序（如HAProxy或者ngingx）来向外部的访问者提供一个单一的地址（当然也可以在客户端内部进行负载均衡，比如简单的轮询或者求余）。
 
-Running behind a load balancer
+使用负载均衡程序
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When running behind a load balancer like nginx, it is recommended to
-pass ``xheaders=True`` to the `.HTTPServer` constructor. This will tell
-Tornado to use headers like ``X-Real-IP`` to get the user's IP address
-instead of attributing all traffic to the balancer's IP address.
+当使用一个负载均衡器的时候（如nginx），建议将 ``xheaders=True`` 传给 `.HTTPServer` 的构造函数。这样将会告知Tornado使用如 ``X-Real-IP`` 的 HTTP headers来获取真实的用户IP地址，而不是认为所有的流量来源都是负载均衡器的IP地址。
 
-This is a barebones nginx config file that is structurally similar to
-the one we use at FriendFeed. It assumes nginx and the Tornado servers
-are running on the same machine, and the four Tornado servers are
-running on ports 8000 - 8003::
+这是一个原始的nginx配置文件的结构是类似的
+一个在FriendFeed使用我们
+
+下面的这个原始的nginx的配置文件，结构与我们在FriendFeed使用的一个配置很相似。假定nginx和Tornado servers运行在相同的服务器上，并且运行4个Tornado servers，分别监听8000-8003四个端口::
 
     user nginx;
     worker_processes 1;
@@ -89,7 +80,7 @@ running on ports 8000 - 8003::
     }
 
     http {
-        # Enumerate all the Tornado servers here
+        # 在upstream中列出所有的tornado server,当然如果你要做不同的路由跳转的时候可以定义多个upstream
         upstream frontends {
             server 127.0.0.1:8000;
             server 127.0.0.1:8001;
@@ -149,7 +140,7 @@ running on ports 8000 - 8003::
         }
     }
 
-Static files and aggressive file caching
+静态文件和频繁访问文件的缓存
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can serve static files from Tornado by specifying the
