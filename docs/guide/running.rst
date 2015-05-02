@@ -143,8 +143,7 @@ fork.  这段话需要理解一下。
 静态文件和频繁访问文件的缓存
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can serve static files from Tornado by specifying the
-``static_path`` setting in your application::
+在Tornado中你可以通过在应用配置中指定 ``static_path`` 来提供静态文件服务::
 
     settings = {
         "static_path": os.path.join(os.path.dirname(__file__), "static"),
@@ -159,32 +158,13 @@ You can serve static files from Tornado by specifying the
          dict(path=settings['static_path'])),
     ], **settings)
 
-This setting will automatically make all requests that start with
-``/static/`` serve from that static directory, e.g.,
-``http://localhost:8888/static/foo.png`` will serve the file
-``foo.png`` from the specified static directory. We also automatically
-serve ``/robots.txt`` and ``/favicon.ico`` from the static directory
-(even though they don't start with the ``/static/`` prefix).
+这种配置将会自动的将所有以 ``/static/`` 开头的请求从设置的静态目录进行提供，例如： ``http://localhost:8888/static/foo.png`` 将会从指定的静态目录提供 ``foo.png`` 文件。我们也会自动的使用该静态目录提供 ``/robots.txt`` 和 ``/favicon.ico`` 文件（及时他们并不是 ``/static/`` 为前缀的请求）
 
-In the above settings, we have explicitly configured Tornado to serve
-``apple-touch-icon.png`` from the root with the `.StaticFileHandler`,
-though it is physically in the static file directory. (The capturing
-group in that regular expression is necessary to tell
-`.StaticFileHandler` the requested filename; recall that capturing
-groups are passed to handlers as method arguments.) You could do the
-same thing to serve e.g. ``sitemap.xml`` from the site root. Of
-course, you can also avoid faking a root ``apple-touch-icon.png`` by
-using the appropriate ``<link />`` tag in your HTML.
+上面的配置中，我们已经明确的配置Tornado使用 `.StaticFileHandler` 句柄来提供根目录下的 ``apple-touch-icon.png`` 文件，尽管它的物理位置是处于静态文件目录里。（在正则表达式中的捕获组必须要被请求的文件名告知 `.StaticFileHandler` 句柄；记住捕获组是作为方法参数传递给处理句柄的。）你可以按照类似的方式来提供一个根目录下 ``sitemap.xml`` 的文件请求。当然，你也可以通过在HTML中使用合适的 ``<link />`` 标签来避免伪造根目录的 ``apple-touch-icon.png`` 文件。（就是说可以通过/static/apple-touch-icon.png 路径来访问，而不是用/apple-touch-icon.png 路径）
 
-To improve performance, it is generally a good idea for browsers to
-cache static resources aggressively so browsers won't send unnecessary
-``If-Modified-Since`` or ``Etag`` requests that might block the
-rendering of the page. Tornado supports this out of the box with *static
-content versioning*.
+为了提高性能，让浏览器主动缓存静态资源通常是一个好主意，这样浏览器就不需要再发送不必要的 ``If-Modified-Since`` 或者 ``Etag`` 请求（可能阻塞住页面渲染）。Tornado通过使用 *静态内容版本* 来支持这个功能。
 
-To use this feature, use the `~.RequestHandler.static_url` method in
-your templates rather than typing the URL of the static file directly
-in your HTML::
+使用这个功能，需要在你的模板文件中使用 `~.RequestHandler.static_url` 方法，而不是直接输入静态文件的URL。
 
     <html>
        <head>
@@ -195,24 +175,12 @@ in your HTML::
        </body>
      </html>
 
-The ``static_url()`` function will translate that relative path to a URI
-that looks like ``/static/images/logo.png?v=aae54``. The ``v`` argument
-is a hash of the content in ``logo.png``, and its presence makes the
-Tornado server send cache headers to the user's browser that will make
-the browser cache the content indefinitely.
+``static_url()`` 函数会将相对路径转换成一个URI，例如： ``/static/images/logo.png?v=aae54`` 。参数 ``v`` 的值是文件 ``logo.png`` 内容的hash值，并且它的存在使得Tornado服务器将缓存headers发送到用户的浏览器，浏览器将会永久性的缓存相关内容。
 
-Since the ``v`` argument is based on the content of the file, if you
-update a file and restart your server, it will start sending a new ``v``
-value, so the user's browser will automatically fetch the new file. If
-the file's contents don't change, the browser will continue to use a
-locally cached copy without ever checking for updates on the server,
-significantly improving rendering performance.
+由于参数 ``v`` 的值是基于文件内容，如果你更新了文件并且重启了服务器，它将发送一个新的 ``v`` 值，这样用户的浏览器将会自动获取新的文件。如果文件的内容没有改变，浏览器将会继续使用本地缓存的副本，而不会检查服务器端的更新，从而显著的提高渲染性能。
 
-In production, you probably want to serve static files from a more
-optimized static file server like `nginx <http://nginx.net/>`_. You
-can configure most any web server to recognize the version tags used
-by ``static_url()`` and set caching headers accordingly.  Here is the
-relevant portion of the nginx configuration we use at FriendFeed::
+在生产过程中，你可能想要使用一个更优化的静态文件服务器提供静态文件服务，比如 `nginx <http://nginx.net/>`_ 。你可以配置几乎所有的Web服务器使用 ``static_url()`` 去识别版本标签，从而设置缓存响应headers。下面是一个我们在FriendFeed中使用的相关nginx配置片段：
+
 
     location /static/ {
         root /var/friendfeed/static;
@@ -223,50 +191,37 @@ relevant portion of the nginx configuration we use at FriendFeed::
 
 .. _debug-mode:
 
-Debug mode and automatic reloading
+调试模式和自动重载
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you pass ``debug=True`` to the ``Application`` constructor, the app
-will be run in debug/development mode. In this mode, several features
-intended for convenience while developing will be enabled (each of which
-is also available as an individual flag; if both are specified the
-individual flag takes precedence):
+如果将 ``debug=True`` 传给 ``Application`` 的构造函数，应用将会以 调试/开发 模式运行。在这种模式下，为了方便，一些功能
+将会启用（其中的每一个都可作为一个单独的标志；如果两者都指定了，单独的标志优先）:
 
-* ``autoreload=True``: The app will watch for changes to its source
-  files and reload itself when anything changes. This reduces the need
-  to manually restart the server during development. However, certain
-  failures (such as syntax errors at import time) can still take the
-  server down in a way that debug mode cannot currently recover from.
-* ``compiled_template_cache=False``: Templates will not be cached.
-* ``static_hash_cache=False``: Static file hashes (used by the
-  ``static_url`` function) will not be cached
-* ``serve_traceback=True``: When an exception in a `.RequestHandler`
-  is not caught, an error page including a stack trace will be
-  generated.
+* ``autoreload=True``: 应用将会观察源代码文件的变化，并且在它被改变的时候进行重载。在开发中将会减少很多手动重启服务器的次数。然后，需要注意如果在调试模式中进行代码更新的时候出现确切的错误（例如在import的时候发现语法错误），服务器将会宕机并且无法自动恢复。
+* ``compiled_template_cache=False``: 模板不会被缓存。
+* ``static_hash_cache=False``: 静态文件哈希表(使用的 ``static_url`` 函数)不会被缓存
+* ``serve_traceback=True``: 当一个异常在一个 `.RequestHandler` 句柄中没有被捕获的时候，一个包含堆栈跟踪过程的错误页面将会生成。
 
+#TODO:要了解代码架构后再来翻译这段
+autoreload模式在 `.HTTPServer` 使用多进程模式的情况下不兼容。
 Autoreload mode is not compatible with the multi-process mode of `.HTTPServer`.
 You must not give `HTTPServer.start <.TCPServer.start>` an argument other than 1 (or
 call `tornado.process.fork_processes`) if you are using autoreload mode.
 
-The automatic reloading feature of debug mode is available as a
-standalone module in `tornado.autoreload`.  The two can be used in
-combination to provide extra robustness against syntax errors: set
-``autoreload=True`` within the app to detect changes while it is running,
-and start it with ``python -m tornado.autoreload myserver.py`` to catch
-any syntax errors or other errors at startup.
+#TODO:需要了解一下autoreload的原理
+调试模式下的自动重载功能在 `tornado.autoreload` 可作为一个独立的模块使用。这两种方式可以相互配合来实现额外的稳定性来处理出现语法错误情况下的重载。在应用运行的时候，设置 ``autoreload=True`` 来探测代码改变，并且使用 ``python -m tornado.autoreload myserver.py`` 命令开启服务程序来启动时捕获任何语法或者其他错误。
 
+#TODO:最后一句的理解，以及Python解释器参数的了解
+重载过程会丢失所有的Python解释器的命令参数（比如 ``-u``) ,因为它使用 `sys.executable` 和 `sys.argv` 来重新执行Python程序。此外，修改这些变量？将引起重载行为异常。
 Reloading loses any Python interpreter command-line arguments (e.g. ``-u``)
 because it re-executes Python using `sys.executable` and `sys.argv`.
 Additionally, modifying these variables will cause reloading to behave
 incorrectly.
 
-On some platforms (including Windows and Mac OSX prior to 10.6), the
-process cannot be updated "in-place", so when a code change is
-detected the old server exits and a new one starts.  This has been
-known to confuse some IDEs.
+在一些平台上（包括Windows 以及 Mac OSX 10.6之前的版本），程序不能被"原地"更新，所以当代码发生改变的时候，旧进程会停止退出，并启动一个新的进程。这种方式将会使某些IDE产生困惑。
 
 
-WSGI and Google App Engine
+WSGI 和 Google App Engine
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Tornado is normally intended to be run on its own, without a WSGI
