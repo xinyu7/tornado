@@ -224,18 +224,9 @@ incorrectly.
 WSGI 和 Google App Engine
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Tornado is normally intended to be run on its own, without a WSGI
-container.  However, in some environments (such as Google App Engine),
-only WSGI is allowed and applications cannot run their own servers.
-In this case Tornado supports a limited mode of operation that does
-not support asynchronous operation but allows a subset of Tornado's
-functionality in a WSGI-only environment.  The features that are
-not allowed in WSGI mode include coroutines, the ``@asynchronous``
-decorator, `.AsyncHTTPClient`, the ``auth`` module, and WebSockets.
+Tornado通常使用内部的HTTP Server运行，而不是使用一个WSGI容器。然而，在某些环境中（比如Google App Engine),只有WSGI方式是允许的，并且应用不能运行自己的server。在这种情况下，Tornado提供了一个限制模式，这个模式不支持异步操作，但是却允许大部分功能在仅支持WSGI的运行环境中运行。在WSGI模式下不支持的功能有：协程， ``@asynchronous`` 修饰器，`.AsyncHTTPClient` 异步客户端， ``auth`` 认证模块以及WebSockets。
 
-You can convert a Tornado `.Application` to a WSGI application
-with `tornado.wsgi.WSGIAdapter`.  In this example, configure
-your WSGI container to find the ``application`` object:
+你可以使用  `tornado.wsgi.WSGIAdapter` 来将一个 Tornado `.Application`  转换成一个WSGI应用。在下面的例子中说明了如何配置你们的WSGI容器来找到应用 ``application`` 对象：
 
 .. testcode::
 
@@ -254,6 +245,5 @@ your WSGI container to find the ``application`` object:
 .. testoutput::
    :hide:
 
-See the `appengine example application
-<https://github.com/tornadoweb/tornado/tree/stable/demos/appengine>`_ for a
-full-featured AppEngine app built on Tornado.
+查看 `appengine example application
+<https://github.com/tornadoweb/tornado/tree/stable/demos/appengine>`_ 来了解使用Tornado构建一个完整功能的AppEngine应用。
