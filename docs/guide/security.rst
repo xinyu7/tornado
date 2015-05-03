@@ -1,15 +1,14 @@
-Authentication and security
+认证和安全
 ===========================
 
 .. testsetup::
 
    import tornado.web
 
-Cookies and secure cookies
+Cookies和安全cookie
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can set cookies in the user's browser with the ``set_cookie``
-method:
+你可以使用 ``set_cookie`` 方法在用户的浏览器中设置cookies:
 
 .. testcode::
 
@@ -24,14 +23,7 @@ method:
 .. testoutput::
    :hide:
 
-Cookies are not secure and can easily be modified by clients.  If you
-need to set cookies to, e.g., identify the currently logged in user,
-you need to sign your cookies to prevent forgery. Tornado supports
-signed cookies with the `~.RequestHandler.set_secure_cookie` and
-`~.RequestHandler.get_secure_cookie` methods. To use these methods,
-you need to specify a secret key named ``cookie_secret`` when you
-create your application. You can pass in application settings as
-keyword arguments to your application:
+Cookie是不安全的，可能很容易被客户端修改。如果你需要去设置cookies，比如认证当前的登陆用户，你需要去签名你的cookies以防止伪造。Tornado支持使用 `~.RequestHandler.set_secure_cookie` 和 `~.RequestHandler.get_secure_cookie` 方法签名cookies。使用这些方法，在创建应用的时候，需要指定一个叫做 ``cookie_secret`` 的私钥，并将该参数传递给application的配置。
 
 .. testcode::
 
@@ -42,11 +34,7 @@ keyword arguments to your application:
 .. testoutput::
    :hide:
 
-Signed cookies contain the encoded value of the cookie in addition to a
-timestamp and an `HMAC <http://en.wikipedia.org/wiki/HMAC>`_ signature.
-If the cookie is old or if the signature doesn't match,
-``get_secure_cookie`` will return ``None`` just as if the cookie isn't
-set. The secure version of the example above:
+被签名的cookies包含cookie的编码值以及一个时间戳和一个 `HMAC <http://en.wikipedia.org/wiki/HMAC>`_ 签名。如果cookie太旧或者签名不匹配的话， ``get_secure_cookie`` 函数将会返回一个 ``None`` 值，就像cookie并没有设置一样。安全版本的代码示例如下所示:
 
 .. testcode::
 
@@ -61,22 +49,13 @@ set. The secure version of the example above:
 .. testoutput::
    :hide:
 
-Tornado's secure cookies guarantee integrity but not confidentiality.
-That is, the cookie cannot be modified but its contents can be seen by the
-user.  The ``cookie_secret`` is a symmetric key and must be kept secret --
-anyone who obtains the value of this key could produce their own signed
-cookies.
+Tornado的安全cookies保证了完整性，但无法保证保密性。这是因为，cookie不能被修改但是内容确实可以被用户查看的。私钥 ``cookie_secret`` 是一个对称的key，并且必须秘密保存，任何获取了该key值的人都可以伪造出自己的签名cookies。
 
-By default, Tornado's secure cookies expire after 30 days.  To change this,
-use the ``expires_days`` keyword argument to ``set_secure_cookie`` *and* the
-``max_age_days`` argument to ``get_secure_cookie``.  These two values are
-passed separately so that you may e.g. have a cookie that is valid for 30 days
-for most purposes, but for certain sensitive actions (such as changing billing
-information) you use a smaller ``max_age_days`` when reading the cookie.
+默认情况下，Tornado的安全cookies在30天后过期。不过可以在 ``set_secure_cookie`` 方法中设置 ``expires_days`` 参数来改变cookies的过期时间，同时设置 ``get_secure_cookie`` 方法的 ``max_age_days`` 参数也可以达到类似的效果。这两个参数可以配合使用，比如在大部分需求中使用 ``expires_days`` 参数设置过期为30天，但是在一些敏感的行为（例如更改账户信息）中使用  ``max_age_days`` 参数得到一个更短的过期时间。
 
 .. _user-authentication:
 
-User authentication
+用户认证
 ~~~~~~~~~~~~~~~~~~~
 
 The currently authenticated user is available in every request handler
