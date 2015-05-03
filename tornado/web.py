@@ -19,7 +19,7 @@ features that allow it to scale to large numbers of open connections,
 making it ideal for `long polling
 <http://en.wikipedia.org/wiki/Push_technology#Long_polling>`_.
 
-Here is a simple "Hello, world" example app:
+Here is a simple "Hello, world" example apps:
 
 .. testcode::
 
