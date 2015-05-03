@@ -58,16 +58,9 @@ Tornado的安全cookies保证了完整性，但无法保证保密性。这是因
 用户认证
 ~~~~~~~~~~~~~~~~~~~
 
-The currently authenticated user is available in every request handler
-as `self.current_user <.RequestHandler.current_user>`, and in every
-template as ``current_user``. By default, ``current_user`` is
-``None``.
+在每个请求handler中，都可以通过使用 `self.current_user <.RequestHandler.current_user>` 方法获得当前的登录用户，在模板中使用 ``current_user`` 变量获取。默认情况下， ``current_user`` 值是 ``None``。
 
-To implement user authentication in your application, you need to
-override the ``get_current_user()`` method in your request handlers to
-determine the current user based on, e.g., the value of a cookie. Here
-is an example that lets users log into the application simply by
-specifying a nickname, which is then saved in a cookie:
+在应用中实现用户登录，你需要在请求句柄中重写 ``get_current_user()`` 方法来查明用户是否登录，例如使用cookie。下面是一个例子，用户通过输入一个简单的昵称登录，并将其保存在cookie中作为认证使用:
 
 .. testcode::
 
@@ -102,12 +95,8 @@ specifying a nickname, which is then saved in a cookie:
 .. testoutput::
    :hide:
 
-You can require that the user be logged in using the `Python
-decorator <http://www.python.org/dev/peps/pep-0318/>`_
-`tornado.web.authenticated`. If a request goes to a method with this
-decorator, and the user is not logged in, they will be redirected to
-``login_url`` (another application setting). The example above could be
-rewritten:
+可以要求用户登录的时候使用 `Python
+修饰器 <http://www.python.org/dev/peps/pep-0318/>`_ `tornado.web.authenticated` 。如果某个方法使用了这个修饰器，而用户处于未登录状态，将会被重定向到 ``login_url`` （另外一个application setting的配置）。上面的例子可以重写成这样:
 
 .. testcode::
 
@@ -129,30 +118,18 @@ rewritten:
 .. testoutput::
    :hide:
 
-If you decorate ``post()`` methods with the ``authenticated``
-decorator, and the user is not logged in, the server will send a
-``403`` response.  The ``@authenticated`` decorator is simply
-shorthand for ``if not self.current_user: self.redirect()`` and may
-not be appropriate for non-browser-based login schemes.
+如果在 ``post()`` 方法上使用 ``authenticated`` 修饰器，并且用户没有登录的化，服务器会返回一个 ``403`` 响应。
+``@authenticated`` 修饰器可以简单理解成： ``if not self.current_user: self.redirect()`` 并且它并不适合非基于浏览器登录的方案（比如单独作为后端API）。
 
-Check out the `Tornado Blog example application
-<https://github.com/tornadoweb/tornado/tree/stable/demos/blog>`_ for a
-complete example that uses authentication (and stores user data in a
-MySQL database).
+点击 `Tornado Blog example application
+<https://github.com/tornadoweb/tornado/tree/stable/demos/blog>`_ 来查看一个用户登录的完整示例（并将用户信息存储在MySQL数据库中）。
 
-Third party authentication
+第三方认证
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The `tornado.auth` module implements the authentication and
-authorization protocols for a number of the most popular sites on the
-web, including Google/Gmail, Facebook, Twitter, and FriendFeed.
-The module includes methods to log users in via these sites and, where
-applicable, methods to authorize access to the service so you can, e.g.,
-download a user's address book or publish a Twitter message on their
-behalf.
+`tornado.auth` 模块为一些最受欢迎的网站实现了认证和认证协议，包括：Google/Gmail, Facebook, Twitter, 和 FriendFeed。模板包含用于登录这些网站的方法，在哪里适合使用，认证权限的方法，所以你可以做一些事情比如：下载一个用户的地址列表或者代表用户在Twitter上发一条消息。
 
-Here is an example handler that uses Google for authentication, saving
-the Google credentials in a cookie for later access:
+这是一个使用Google认证的例子，在例子中将Google credentials保存在cookie中以便之后的验证:
 
 .. testcode::
 
@@ -176,13 +153,14 @@ the Google credentials in a cookie for later access:
 .. testoutput::
    :hide:
 
-See the `tornado.auth` module documentation for more details.
+查看 `tornado.auth` 的模板文档，了解更多详细信息。
 
 .. _xsrf:
 
-Cross-site request forgery protection
+跨站请求伪造
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+#TODO:这部分之后再翻译
 `Cross-site request
 forgery <http://en.wikipedia.org/wiki/Cross-site_request_forgery>`_, or
 XSRF, is a common problem for personalized web applications. See the
