@@ -20,7 +20,6 @@ making it ideal for `long polling
 <http://en.wikipedia.org/wiki/Push_technology#Long_polling>`_.
 
 Here is a simple "Hello, world" example app:
-这是一个简单的 "Hello, world" 的示例app:
 
 .. testcode::
 
