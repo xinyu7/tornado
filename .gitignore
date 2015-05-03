@@ -14,3 +14,5 @@ MANIFEST
 /env/
 # Used in demo apps
 secrets.cfg
+.DS_Store
+tornado/.DS_Store
