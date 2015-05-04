@@ -7,11 +7,11 @@
 
 .. automodule:: tornado.web
 
-   Request handlers
+   处理句柄类
    ----------------
    .. autoclass:: RequestHandler
 
-   Entry points
+   入口点
    ^^^^^^^^^^^^
 
    .. automethod:: RequestHandler.initialize
