@@ -14,12 +14,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""``tornado.web`` provides a simple web framework with asynchronous
-features that allow it to scale to large numbers of open connections,
-making it ideal for `long polling
-<http://en.wikipedia.org/wiki/Push_technology#Long_polling>`_.
+"""``tornado.web`` 模块提供了一个简单的带有异步功能的web框架，来使其可以承载数以万计的开放连接，并适用于 `long polling <http://en.wikipedia.org/wiki/Push_technology#Long_polling>`_ 场景.
 
-Here is a simple "Hello, world" example apps:
+这是一个简单的 "Hello, world" 的样例应用:
 
 .. testcode::
 
@@ -40,19 +37,12 @@ Here is a simple "Hello, world" example apps:
 .. testoutput::
    :hide:
 
+查看 :doc:`guide` 文档，了解更多信息。
 
-See the :doc:`guide` for additional information.
-
-Thread-safety notes
+线程安全注意事项
 -------------------
 
-In general, methods on `RequestHandler` and elsewhere in Tornado are
-not thread-safe.  In particular, methods such as
-`~RequestHandler.write()`, `~RequestHandler.finish()`, and
-`~RequestHandler.flush()` must only be called from the main thread.  If
-you use multiple threads it is important to use `.IOLoop.add_callback`
-to transfer control back to the main thread before finishing the
-request.
+通常来说， Tornado中，在 `RequestHandler` 类里（还有其他位置）方法都不是线程安全的。特别是如： `~RequestHandler.write()`, `~RequestHandler.finish()`, 和 `~RequestHandler.flush()` 这几个方法只能在主线程中调用。如果你使用了多线程模式运行，就必须在请求结束前使用 `.IOLoop.add_callback` 将控制权交给主线程。
 
 """
 
