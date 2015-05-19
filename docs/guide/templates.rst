@@ -90,34 +90,25 @@ Tornado的模板支持 *控制语句* 和 *表达式* 。控制语句使用 ``{%
 需要注意，虽然Tornado自动的模板加密有助于避免 XSS 漏洞，然而并不能解决所有的情况。出现在特定的位置的表达式，可能需要额外的转义，例如在Javascript或CSS里。此外，还有其他几点务必要注意：要一直使用双引号、在HTML属性中的 `.xhtml_escape` 可能包含其他未信任的内容，还有一个单独的escaping 函数必须被attributes 使用。（点击 http://wonko.com/post/html-escaping 查看详细内容）。
 
 
-Internationalization
+国际化
 ~~~~~~~~~~~~~~~~~~~~
 
-The locale of the current user (whether they are logged in or not) is
-always available as ``self.locale`` in the request handler and as
-``locale`` in templates. The name of the locale (e.g., ``en_US``) is
-available as ``locale.name``, and you can translate strings with the
-`.Locale.translate` method. Templates also have the global function
-call ``_()`` available for string translation. The translate function
-has two forms::
+当前用户的语言环境（无论用户是否登录）总是可用的，比如在请求handler中使用 ``self.locale`` 或在模板中使用 ``locale`` 。语言的名字（比如 ``en_US`` ）可以使用 ``locale.name`` 获取，并且你可以使用 `.Locale.translate` 方法来翻译字符串。 模板中也有全局的函数 ``_()`` 用来进行字符串翻译。翻译函数有两种形式::
 
     _("Translate this string")
 
-which translates the string directly based on the current locale, and::
+这种是基于当前的语言环境直接翻译字符串内容，以及::
 
-    _("A person liked this", "%(num)d people liked this",
-      len(people)) % {"num": len(people)}
+    _("A person liked this", "%(num)d people liked this", len(people)) % {"num": len(people)}
 
-which translates a string that can be singular or plural based on the
-value of the third argument. In the example above, a translation of the
-first string will be returned if ``len(people)`` is ``1``, or a
-translation of the second string will be returned otherwise.
+这种翻译字符串内容的方式是基于第三个参数来确定是单数还是复数形式。在上面的例子中，如果 ``len(people)`` 的结果是 ``1`` ，就会按照第一个字符串翻译；如果是 ``len(people)`` 的值是复数则会按照第二个字符串翻译。
+
 
 The most common pattern for translations is to use Python named
 placeholders for variables (the ``%(num)d`` in the example above) since
 placeholders can move around on translation.
 
-Here is a properly internationalized template::
+这是一个正确的国际化的模板::
 
     <html>
        <head>
@@ -133,11 +124,7 @@ Here is a properly internationalized template::
        </body>
      </html>
 
-By default, we detect the user's locale using the ``Accept-Language``
-header sent by the user's browser. We choose ``en_US`` if we can't find
-an appropriate ``Accept-Language`` value. If you let user's set their
-locale as a preference, you can override this default locale selection
-by overriding `.RequestHandler.get_user_locale`:
+默认情况下我们会通过用户浏览器发送的 ``Accept-Language`` header信息获取用户的语言环境。如果无法获得合适的 ``Accept-Language`` 值，会默认使用 ``en_US`` 。如果想让用户自己设置偏好的语言环境，你可以通过重写 `.RequestHandler.get_user_locale` 方法来覆盖默认的语言环境:
 
 .. testcode::
 
@@ -156,9 +143,9 @@ by overriding `.RequestHandler.get_user_locale`:
 .. testoutput::
    :hide:
 
-If ``get_user_locale`` returns ``None``, we fall back on the
-``Accept-Language`` header.
+如果 ``get_user_locale`` 函数返回了 ``None`` 值，我们会重新查询 ``Accept-Language`` header的值。
 
+#TODO:这段后续再修复一下
 The `tornado.locale` module supports loading translations in two
 formats: the ``.mo`` format used by `gettext` and related tools, and a
 simple ``.csv`` format.  An application will generally call either
@@ -166,16 +153,15 @@ simple ``.csv`` format.  An application will generally call either
 `tornado.locale.load_gettext_translations` once at startup; see those
 methods for more details on the supported formats..
 
-You can get the list of supported locales in your application with
-`tornado.locale.get_supported_locales()`. The user's locale is chosen
-to be the closest match based on the supported locales. For example, if
-the user's locale is ``es_GT``, and the ``es`` locale is supported,
-``self.locale`` will be ``es`` for that request. We fall back on
-``en_US`` if no close match can be found.
+#TODO:最后那句是看源码么？
+`tornado.locale`  模板支持两种形式的文件来加载翻译： ``.mo`` 模式可以通过 `gettext` 和相关的工具来使用，以及一个简单的 ``.csv`` 格式。通常情况下应用会在启动的时候调用一次 `tornado.locale.load_translations` 或者 `tornado.locale.load_gettext_translations` 方法中的一个。
+可以查看这些方法以便获取更多支持格式的细节...（see those methods for more details on the supported formats.. ）
+
+你可以在应用中使用 `tornado.locale.get_supported_locales()` 函数获取所支持的语言环境列表。用户的语言环境会被选择成最接近支持的语言环境中的一个。比如，如果用户的语言环境是 ``es_GT`` ，并且 ``es`` 这个语言环境是支持的，那么 ``self.locale`` 将会使用 ``es`` 作为当前语言环境去处理请求。如果没有较接近的语言环境被匹配，则会使用 ``en_US`` 作为默认的语言环境。
 
 .. _ui-modules:
 
-UI modules
+UI 模块
 ~~~~~~~~~~
 
 Tornado supports *UI modules* to make it easy to support standard,
