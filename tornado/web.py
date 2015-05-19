@@ -179,14 +179,16 @@ class RequestHandler(object):
         self.initialize(**kwargs)
 
     def initialize(self):
-        """Hook for subclass initialization.
+        """子类的初始化函数，会在任何HTTP方法之前最先被调用。
 
-        A dictionary passed as the third argument of a url spec will be
-        supplied as keyword arguments to initialize().
+        URL规范的第三个字典类型参数将会作为参数传给initialize() 函数。
+
+        一般该函数可以用来做一些初始化工作。
 
         Example::
 
             class ProfileHandler(RequestHandler):
+                # database参数就是下面Application中的dict(database=database)
                 def initialize(self, database):
                     self.database = database
 
@@ -201,32 +203,40 @@ class RequestHandler(object):
 
     @property
     def settings(self):
-        """An alias for `self.application.settings <Application.settings>`."""
+        """ `self.application.settings <Application.settings>` 的别名."""
         return self.application.settings
 
     def head(self, *args, **kwargs):
+        """ 需要在子类中具体实现，为实现的方法被访问到时会产生HTTP 405（Method not allowed）错误。"""
         raise HTTPError(405)
 
     def get(self, *args, **kwargs):
+        """ 需要在子类中具体实现，为实现的方法被访问到时会产生HTTP 405（Method not allowed）错误。"""
         raise HTTPError(405)
 
     def post(self, *args, **kwargs):
+        """ 需要在子类中具体实现，为实现的方法被访问到时会产生HTTP 405（Method not allowed）错误。"""
         raise HTTPError(405)
 
     def delete(self, *args, **kwargs):
+        """ 需要在子类中具体实现，为实现的方法被访问到时会产生HTTP 405（Method not allowed）错误。"""
         raise HTTPError(405)
 
     def patch(self, *args, **kwargs):
+        """ 需要在子类中具体实现，为实现的方法被访问到时会产生HTTP 405（Method not allowed）错误。"""
         raise HTTPError(405)
 
     def put(self, *args, **kwargs):
+        """ 需要在子类中具体实现，为实现的方法被访问到时会产生HTTP 405（Method not allowed）错误。"""
         raise HTTPError(405)
 
     def options(self, *args, **kwargs):
+        """ 需要在子类中具体实现，为实现的方法被访问到时会产生HTTP 405（Method not allowed）错误。"""
         raise HTTPError(405)
 
     def prepare(self):
         """Called at the beginning of a request before  `get`/`post`/etc.
+        在 `get`/`post`/等函数之前被调用，在 `initialize` 函数之后调用。
 
         Override this method to perform common initialization regardless
         of the request method.

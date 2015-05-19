@@ -1,43 +1,34 @@
-Templates and UI
+模板和UI
 ================
 
 .. testsetup::
 
    import tornado.web
 
-Tornado includes a simple, fast, and flexible templating language.
-This section describes that language as well as related issues
-such as internationalization.
+Tornado包含一个简单、快速、灵活的模板语言。本节介绍了模板语言以及相关问题，如国际化等。
 
-Tornado can also be used with any other Python template language,
-although there is no provision for integrating these systems into
-`.RequestHandler.render`.  Simply render the template to a string
-and pass it to `.RequestHandler.write`
+Tornado也可以喝其他的Python模板语言配合使用，然而并没有将这些系统整合到 `.RequestHandler.render` 方法。而且简单的将模板渲染成字符串，然后传递给 `.RequestHandler.write` 方法。
 
-Configuring templates
+配置模板
 ~~~~~~~~~~~~~~~~~~~~~
 
-By default, Tornado looks for template files in the same directory as
-the ``.py`` files that refer to them.  To put your template files in a
-different directory, use the ``template_path`` `Application setting
-<.Application.settings>` (or override `.RequestHandler.get_template_path`
-if you have different template paths for different handlers).
+默认情况下，Tornado会在当前被引用的 ``.py`` 文件所在的相同目录寻找模板文件。可以在 `Application setting
+<.Application.settings>` 中设置 ``template_path`` 参数来让Tornado到设定的目录中寻找模板文件（如果你为不同的处理句柄设置不同的模板文件目录的化，可以通过重写 `.RequestHandler.get_template_path` 方法来解决）。
 
+
+#TODO: 这段需要再理解一下
 To load templates from a non-filesystem location, subclass
 `tornado.template.BaseLoader` and pass an instance as the
 ``template_loader`` application setting.
 
-Compiled templates are cached by default; to turn off this caching
-and reload templates so changes to the underlying files are always
-visible, use the application settings ``compiled_template_cache=False``
-or ``debug=True``.
+如果要在一个非文件系统的位置加载模板，需要写一个 `tornado.template.BaseLoader` 的子类，并且在应用配置中设置 ``template_loader`` 参数的值为该子类的实例。
 
+默认情况下编译完成后的模板将会被缓存；可以通过在应用设置（application settings）中设置参数 ``compiled_template_cache=False`` 或 ``debug=True`` 来关闭缓存，这样每次模板被更改后都会自动加载。
 
-Template syntax
+模板语法
 ~~~~~~~~~~~~~~~
 
-A Tornado template is just HTML (or any other text-based format) with
-Python control sequences and expressions embedded within the markup::
+一个Tornado的模板其实就是将Python的控制序列和表达式嵌入标记内的HTML文件（或者任何其他基于文本的格式）::
 
     <html>
        <head>
@@ -52,91 +43,52 @@ Python control sequences and expressions embedded within the markup::
        </body>
      </html>
 
-If you saved this template as "template.html" and put it in the same
-directory as your Python file, you could render this template with:
+如果你将这个模板文件保存为： "template.html" ，并且将其放在你的Python文件的相同目录内，你就可以用下面的方式进行模板渲染了:
 
 .. testcode::
 
     class MainHandler(tornado.web.RequestHandler):
         def get(self):
             items = ["Item 1", "Item 2", "Item 3"]
+            # title,items分别是上面的template.html模板中的变量。
             self.render("template.html", title="My title", items=items)
 
 .. testoutput::
    :hide:
 
-Tornado templates support *control statements* and *expressions*.
-Control statements are surrounded by ``{%`` and ``%}``, e.g.,
-``{% if len(items) > 2 %}``. Expressions are surrounded by ``{{`` and
-``}}``, e.g., ``{{ items[0] }}``.
+Tornado的模板支持 *控制语句* 和 *表达式* 。控制语句使用 ``{%`` and ``%}`` 环绕，例如: ``{% if len(items) > 2 %}`` 。表达式使用 ``{{`` 和 ``}}`` 来环绕, 比如: ``{{ items[0] }}`` 。
 
-Control statements more or less map exactly to Python statements. We
-support ``if``, ``for``, ``while``, and ``try``, all of which are
-terminated with ``{% end %}``. We also support *template inheritance*
-using the ``extends`` and ``block`` statements, which are described in
-detail in the documentation for the `tornado.template`.
+控制语句大致与Python语句类似。它支持 ``if``, ``for``, ``while``, 和 ``try`` ，并且都必须使用 ``{% end %}`` 标志来结束。它也可以使用 ``extends`` 和 ``block`` 标签来实现 *模板继承* ，这些都在 `tornado.template` 文档中有详细的介绍。
 
-Expressions can be any Python expression, including function calls.
-Template code is executed in a namespace that includes the following
-objects and functions (Note that this list applies to templates
-rendered using `.RequestHandler.render` and
-`~.RequestHandler.render_string`. If you're using the
-`tornado.template` module directly outside of a `.RequestHandler` many
-of these entries are not present).
+表达式可也是任意的Python表达式，包括函数调用。模板中的代码会被执行在一个包括羡慕的对象和功能的命名空间中（需要注意的是：这些列出用来进行模板渲染的条目适用于在使用 `.RequestHandler.render` 和 `~.RequestHandler render_string` 的时候。如果你直接在 `.RequestHandler` 外使用 `tornado.template` 模块，这些条目很多都是不存在的）。
 
-- ``escape``: alias for `tornado.escape.xhtml_escape`
-- ``xhtml_escape``: alias for `tornado.escape.xhtml_escape`
-- ``url_escape``: alias for `tornado.escape.url_escape`
-- ``json_encode``: alias for `tornado.escape.json_encode`
-- ``squeeze``: alias for `tornado.escape.squeeze`
-- ``linkify``: alias for `tornado.escape.linkify`
-- ``datetime``: the Python `datetime` module
-- ``handler``: the current `.RequestHandler` object
-- ``request``: alias for `handler.request <.HTTPServerRequest>`
-- ``current_user``: alias for `handler.current_user
-  <.RequestHandler.current_user>`
-- ``locale``: alias for `handler.locale <.Locale>`
-- ``_``: alias for `handler.locale.translate <.Locale.translate>`
-- ``static_url``: alias for `handler.static_url <.RequestHandler.static_url>`
-- ``xsrf_form_html``: alias for `handler.xsrf_form_html
-  <.RequestHandler.xsrf_form_html>`
-- ``reverse_url``: alias for `.Application.reverse_url`
-- All entries from the ``ui_methods`` and ``ui_modules``
-  ``Application`` settings
-- Any keyword arguments passed to `~.RequestHandler.render` or
-  `~.RequestHandler.render_string`
+- ``escape``: `tornado.escape.xhtml_escape` 的别名
+- ``xhtml_escape``: `tornado.escape.xhtml_escape` 的别名
+- ``url_escape``: `tornado.escape.url_escape` 的别名
+- ``json_encode``: `tornado.escape.json_encode` 的别名
+- ``squeeze``:  `tornado.escape.squeeze` 的别名
+- ``linkify``:  `tornado.escape.linkify`
+- ``datetime``: Python 的 `datetime` 模块
+- ``handler``: 当前的 `.RequestHandler` 对象
+- ``request``:  `handler.request <.HTTPServerRequest>` 的别名
+- ``current_user``: `handler.current_user <.RequestHandler.current_user>` 的别名
+- ``locale``: `handler.locale <.Locale>` 的别名
+- ``_``: `handler.locale.translate <.Locale.translate>` 的别名
+- ``static_url``: `handler.static_url <.RequestHandler.static_url>` 的别名
+- ``xsrf_form_html``: `handler.xsrf_form_html <.RequestHandler.xsrf_form_html>` 的别名
+- ``reverse_url``: `.Application.reverse_url` 的别名
+- 所有来自`` ui_methods``项和` ` ui_modules`` 的 `` Application``设置
+- 所有传给 `~.RequestHandler.render` 或 `~.RequestHandler.render_string` 方法的关键字
 
-When you are building a real application, you are going to want to use
-all of the features of Tornado templates, especially template
-inheritance. Read all about those features in the `tornado.template`
-section (some features, including ``UIModules`` are implemented in the
-`tornado.web` module)
+当你使用Tornado创建一个真正的应用的时候，你会想去使用Tornado模板的全部功能，尤其是模板继承。 可以阅读 `tornado.template` 章节来了解详细的功能（包括 ``UIModules`` 的一些功能是在 `tornado.web` 模块中实现的）。
 
-Under the hood, Tornado templates are translated directly to Python. The
-expressions you include in your template are copied verbatim into a
-Python function representing your template. We don't try to prevent
-anything in the template language; we created it explicitly to provide
-the flexibility that other, stricter templating systems prevent.
-Consequently, if you write random stuff inside of your template
-expressions, you will get random Python errors when you execute the
-template.
+在引擎之中，Tornado的模板会被直接翻译成Python代码。在模板中的你所引入的表达式会一字不差的复制成一个Python函数来代替你的模板。在模板语言中，我们不会有任何限制；我们意在创造一个灵活的模板系统，而不是一个有各种限制的模板系统。因此，如果你在模板的表达式中随便写各种代码，当你执行模板的时候就会产生各种各样的错误了。
 
-All template output is escaped by default, using the
-`tornado.escape.xhtml_escape` function. This behavior can be changed
-globally by passing ``autoescape=None`` to the `.Application` or
-`.tornado.template.Loader` constructors, for a template file with the
-``{% autoescape None %}`` directive, or for a single expression by
-replacing ``{{ ... }}`` with ``{% raw ...%}``. Additionally, in each of
-these places the name of an alternative escaping function may be used
-instead of ``None``.
+默认情况下，所有的模板输出的时候都会使用 `tornado.escape.xhtml_escape` 函数加密。这个行为可以通过传递 ``autoescape=None`` 给 `.Application` 设置或者 `.tornado.template.Loader` 的构造函数来关闭，也可以使用 ``{% autoescape None %}`` 命令仅在某个模板文件中关闭该功能，或者使用 ``{% raw ...%}`` 替换 ``{{ ... }}`` 从而在某个单独的表达式中关闭该功能。
 
-Note that while Tornado's automatic escaping is helpful in avoiding
-XSS vulnerabilities, it is not sufficient in all cases.  Expressions
-that appear in certain locations, such as in Javascript or CSS, may need
-additional escaping.  Additionally, either care must be taken to always
-use double quotes and `.xhtml_escape` in HTML attributes that may contain
-untrusted content, or a separate escaping function must be used for
-attributes (see e.g. http://wonko.com/post/html-escaping)
+#TODO:最后一句理解的不好
+需要注意，虽然Tornado自动的模板加密有助于避免 XSS 漏洞，然而并不能解决所有的情况。出现在特定的位置的表达式，可能需要额外的转义，例如在Javascript或CSS里。此外，还有其他几点务必要注意：要一直使用双引号、在HTML属性中的 `.xhtml_escape` 可能包含其他未信任的内容，还有一个单独的escaping 函数必须被attributes 使用。（点击 http://wonko.com/post/html-escaping 查看详细内容）。
+
 
 Internationalization
 ~~~~~~~~~~~~~~~~~~~~
